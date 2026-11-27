@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en-AU" dir="ltr">
+<head>
+<meta charset="utf-8"><meta name="MSRAI_Label_dbd012e0-e600-4c3e-83b7-7d3141c15efc_AI_Disclosure" content="Made with AI">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Azure Consumption &amp; Savings Analyser</title>
+<style>
+:root{--bg:#f4f6f9;--panel:#ffffff;--text:#1b1f24;--muted:#5b6573;--border:#dde3ea;--accent:#0f6cbd;--accent2:#e8f1fb;--good:#107c10;--warn:#bc4b09;--bad:#c50f1f;--grid:#e6eaef;}
+@media (prefers-color-scheme: dark){:root{--bg:#14171c;--panel:#1e232a;--text:#e8ebef;--muted:#9aa5b1;--border:#343c47;--accent:#4ba0f0;--accent2:#1c2c3f;--good:#5fb35f;--warn:#f0a04b;--bad:#f06b6b;--grid:#2c333c;}}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.45}
+header{background:var(--panel);border-block-end:1px solid var(--border);padding:14px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:16px;justify-content:space-between}
+header h1{font-size:19px;margin:0}
+header .sub{color:var(--muted);font-size:12.5px}
+main{padding:18px 24px;max-width:1500px;margin:0 auto}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-block-end:16px}
+.panel h2{font-size:15.5px;margin:0 0 10px}
+.panel h3{font-size:14px;margin:14px 0 8px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.drop{border:2px dashed var(--border);border-radius:10px;padding:26px;text-align:center;background:var(--accent2)}
+.drop.over{border-color:var(--accent)}
+button,select,input{font:inherit;color:var(--text)}
+button{background:var(--accent);color:#fff;border:0;border-radius:6px;padding:7px 14px;cursor:pointer}
+button.sec{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+button:disabled{opacity:.5;cursor:default}
+select,input[type=text],input[type=number],input[type=search]{background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:5px 8px}
+input[type=number]{inline-size:80px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-block-end:16px}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.kpi .l{color:var(--muted);font-size:12px}
+.kpi .v{font-size:21px;font-weight:600;margin-block-start:2px}
+.kpi .n{color:var(--muted);font-size:11.5px}
+.kpi.hl{border-color:var(--good)}
+.kpi.hl .v{color:var(--good)}
+nav.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-block-end:14px;border-block-end:1px solid var(--border)}
+nav.tabs button{background:transparent;color:var(--muted);border-radius:6px 6px 0 0;border:1px solid transparent;border-block-end:0;padding:8px 14px}
+nav.tabs button.on{background:var(--panel);color:var(--text);border-color:var(--border);font-weight:600}
+.view{display:none}.view.on{display:block}
+table{border-collapse:collapse;inline-size:100%;font-size:12.8px}
+th,td{padding:5px 8px;border-block-end:1px solid var(--border);text-align:start;vertical-align:top}
+th{background:var(--accent2);position:sticky;inset-block-start:0;font-weight:600;white-space:nowrap}
+td.num,th.num{text-align:end;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tw{max-block-size:520px;overflow:auto;border:1px solid var(--border);border-radius:6px}
+.pos{color:var(--bad)}.neg{color:var(--good)}
+.bars .b{display:grid;grid-template-columns:minmax(120px,34%) 1fr 92px 52px;gap:8px;align-items:center;padding:3px 0;font-size:12.8px}
+.bars .lab{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bars .trk{background:var(--grid);border-radius:3px;block-size:14px}
+.bars .fil{background:var(--accent);border-radius:3px;block-size:14px}
+.bars .val{text-align:end;font-variant-numeric:tabular-nums}
+.bars .pct{text-align:end;color:var(--muted)}
+svg.chart{inline-size:100%;block-size:auto;display:block}
+svg .grid{stroke:var(--grid)}
+svg .ax{fill:var(--muted);font-size:11px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;margin-block-start:6px}
+.legend i{display:inline-block;inline-size:11px;block-size:11px;border-radius:2px;margin-inline-end:5px;vertical-align:-1px}
+.progress{block-size:10px;background:var(--grid);border-radius:5px;overflow:hidden;margin-block:10px}
+.progress div{block-size:100%;background:var(--accent);inline-size:0}
+.tag{display:inline-block;padding:0 6px;border-radius:9px;font-size:11px;background:var(--accent2);color:var(--accent);margin-inline-end:3px}
+.tag.w{background:transparent;border:1px solid var(--warn);color:var(--warn)}
+.note{border-inline-start:3px solid var(--warn);padding:8px 12px;background:var(--accent2);border-radius:4px;margin-block:10px;font-size:12.8px}
+details{border:1px solid var(--border);border-radius:6px;padding:6px 10px;margin-block:6px}
+details summary{cursor:pointer;font-weight:600}
+.assump{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 18px}
+.assump label{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12.8px}
+.assump input[type=text]{inline-size:100%}
+#log{font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;color:var(--muted)}
+.hidden{display:none}
+[data-filter]{cursor:pointer}
+[data-filter]:focus{outline:2px solid var(--accent)}
+#chartTip{position:fixed;z-index:10;pointer-events:none;max-inline-size:340px;padding:10px 12px;background:var(--panel);border:1px solid var(--accent);border-radius:6px;box-shadow:0 4px 16px #0003;font-size:12.5px;white-space:pre-line}
+#chartTip[hidden]{display:none}
+@media print{nav.tabs,#loader,.noprint{display:none}.view{display:block}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Azure Consumption &amp; Savings Analyser</h1>
+    <div class="sub">Runs entirely in your browser — no data leaves this machine. Accepts multiple Microsoft Customer Agreement / EA cost-detail CSV exports.</div>
+  </div>
+  <div class="row noprint hidden" id="filters">
+    <label class="small">Subscription <select id="fSub"></select></label>
+    <label class="small">Meter category <select id="fCat"></select></label>
+    <label class="small">Chart month <select id="fMonth"></select></label>
+    <button class="sec" id="btnClear">Clear filters</button>
+    <button class="sec" id="btnReset">Load different files</button>
+  </div>
+</header>
+<main>
+
+<section class="panel" id="loader">
+  <h2>1. Load the usage files</h2>
+  <div class="drop" id="drop">
+    <p><strong>Drag and drop the monthly CSV files here</strong> (e.g. all 4 files at once), or</p>
+    <div class="row" style="justify-content:center">
+      <input type="file" id="fileIn" accept=".csv,text/csv" multiple>
+      <label class="small">Or select a folder <input type="file" id="folderIn" webkitdirectory multiple></label>
+    </div>
+    <p class="small muted">CSV files are streamed sequentially in 4 MB chunks in a background worker. Trends mode avoids retaining individual resources and tag values for large folders. Full detail uses more memory; available memory still limits aggregate size. Excel opportunity exports are reported as excluded, not treated as usage. Use Edge/Chrome for folder selection.</p>
+  </div>
+  <div class="row" style="margin-block-start:12px">
+    <label class="small">Cost basis
+      <select id="ccy"><option value="billing">Billing currency (costInBillingCurrency)</option><option value="usd">USD (costInUsd)</option></select>
+    </label>
+    <label class="small">Analysis mode <select id="detailMode"><option value="summary">Trends (low memory)</option><option value="full">Full resource and tag detail</option></select></label>
+    <button id="btnGo" disabled>Analyse files</button>
+    <button class="sec" id="btnCancel" disabled>Cancel</button>
+    <span class="muted small">or</span>
+    <button class="sec" id="btnLoadJson">Open saved analysis (.json)</button>
+    <input type="file" id="jsonIn" accept=".json" class="hidden">
+    <button class="sec" id="btnDemo">Try with illustrative demo data</button>
+  </div>
+  <div id="fileList" class="small muted" style="margin-block-start:8px"></div>
+  <div class="progress hidden" id="prog"><div></div></div>
+  <div id="log"></div>
+</section>
+
+<div id="app" class="hidden">
+  <div id="dataNote"></div>
+  <p class="small muted" id="filterNote"></p>
+  <nav class="tabs" id="tabs">
+    <button data-v="ov" class="on">Overview</button>
+    <button data-v="sv">Savings opportunities</button>
+    <button data-v="tr">Trends &amp; anomalies</button>
+    <button data-v="bd">Breakdown</button>
+    <button data-v="rs">Resources</button>
+    <button data-v="cm">Reservations &amp; savings plans</button>
+    <button data-v="gv">Tags &amp; governance</button>
+    <button data-v="ex">Export</button>
+  </nav>
+
+  <section class="view on" id="v-ov">
+    <div class="kpis" id="kpis"></div>
+    <div class="panel"><h2>Monthly cost by meter category</h2><div id="chMonthly"></div></div>
+    <div class="grid2">
+      <div class="panel"><h2>Top meter categories</h2><div id="chCat"></div></div>
+      <div class="panel"><h2>Top subscriptions</h2><div id="chSub"></div></div>
+      <div class="panel"><h2>Pricing model (usage only)</h2><div id="chPm"></div></div>
+      <div class="panel"><h2>Top regions</h2><div id="chLoc"></div></div>
+    </div>
+    <div class="panel"><h2>Top savings opportunities</h2><div id="ovSave"></div></div>
+  </section>
+
+  <section class="view" id="v-sv">
+    <div class="panel">
+      <h2>Savings opportunities (indicative, annualised)</h2>
+      <p class="small muted">Each lever is applied per resource in sequence (schedule → modernise → Hybrid Benefit → commitment), so resource-level figures add up without double counting. Annualised from each resource's on-demand run-rate during the period it was active. Validate with Azure Advisor and Cost Management before sharing with the customer. Adjust the assumptions to match the customer's agreement.</p>
+      <details open><summary>Assumptions</summary>
+        <div class="assump" id="assump">
+          <label>Commitment discount (RI / savings plan) % <input type="number" id="aCommit" value="30" min="0" max="80"></label>
+          <label>Min. uptime for steady workload % <input type="number" id="aUptime" value="90" min="0" max="100"></label>
+          <label>Azure Hybrid Benefit (Windows) % <input type="number" id="aAhb" value="35" min="0" max="60"></label>
+          <label>Non-prod scheduling saving % <input type="number" id="aSched" value="60" min="0" max="90"></label>
+          <label>VM modernisation saving % <input type="number" id="aOld" value="15" min="0" max="60"></label>
+          <label>Unused commitment recoverable % <input type="number" id="aUnused" value="50" min="0" max="100"></label>
+          <label>SQL Server licence (AHB) % <input type="number" id="aSql" value="100" min="0" max="100"></label>
+          <label>Snapshot clean-up % <input type="number" id="aSnap" value="50" min="0" max="100"></label>
+          <label>Blob tiering (Hot data) % <input type="number" id="aHot" value="30" min="0" max="90"></label>
+          <label>Premium disk right-sizing % <input type="number" id="aDisk" value="15" min="0" max="60"></label>
+          <label>Log Analytics commitment tier % <input type="number" id="aLogs" value="15" min="0" max="50"></label>
+          <label>Non-prod pattern (subscription or resource group) <input type="text" id="aNp" value="dev|test|tst|uat|qa|sit|nonprod|non-prod|sandbox|sbx|poc|lab|demo|staging|stg|training"></label>
+          <label>Previous-gen VM series pattern <input type="text" id="aOg" value="(^|[\s/])(A|Av2|Basic|D|DS|Dv2|DSv2|Dv3|DSv3|Ev3|ESv3|F|FS|G|GS|NV|NC|H|L)\s?(Series|/)"></label>
+        </div>
+      </details>
+      <div class="kpis" id="svKpis" style="margin-block-start:12px"></div>
+      <div id="svTable"></div>
+    </div>
+    <div class="panel"><h2>Lever detail</h2><div id="svDetail"></div></div>
+  </section>
+
+  <section class="view" id="v-tr">
+    <div class="panel"><h2>Daily cost</h2><p class="small muted">Red markers = days more than 3 standard deviations above the trailing 14-day average.</p><div id="chDaily"></div></div>
+    <div class="panel"><h2>Daily cost drivers</h2><p class="small muted">Click a day to inspect its category and subscription drivers. Click a driver to filter linked charts.</p><div id="dayDrivers"></div></div>
+    <div class="grid2">
+      <div class="panel"><h2>Cost spikes by category</h2><div id="anom"></div></div>
+      <div class="panel"><h2>Month-on-month movers</h2><div class="row small"><label>Group by <select id="mvDim"><option value="cat">Meter category</option><option value="sub">Subscription</option><option value="loc">Region</option></select></label></div><div id="movers"></div></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-bd">
+    <div class="panel">
+      <div class="row"><h2 style="margin:0">Cost by</h2>
+        <select id="bdDim"><option value="sub">Subscription</option><option value="cat">Meter category</option><option value="loc">Region</option><option value="pm">Pricing model</option><option value="ct">Charge type</option><option value="pub">Publisher type</option><option value="ce">Azure credit / MACC eligible</option><option value="tag">Tagged</option><option value="rg">Resource group</option><option value="meter">Meter</option></select>
+      </div>
+      <div id="bdOut" style="margin-block-start:10px"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-rs">
+    <div class="panel">
+      <div class="row"><h2 style="margin:0">Resources</h2>
+        <input type="search" id="rsQ" placeholder="Filter by name, RG, size…" style="inline-size:260px">
+        <label class="small">Flag <select id="rsFlag"><option value="">All</option><option value="steady">Steady on-demand</option><option value="win">Windows licence (AHB)</option><option value="np">Non-prod 24×7</option><option value="og">Previous-gen VM</option><option value="stopped">Not seen in last 7 days</option></select></label>
+        <span class="small muted" id="rsCount"></span>
+      </div>
+      <div class="tw" style="margin-block-start:10px" id="rsOut"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-cm">
+    <div class="panel"><h2>Commitment coverage of eligible services</h2><p class="small muted">Share of usage cost on Reservations / Savings plans for services that support commitments. Low coverage on steady services = opportunity.</p><div id="cov"></div></div>
+    <div class="panel"><h2>Reservation &amp; savings plan utilisation</h2><div id="resvT"></div></div>
+  </section>
+
+  <section class="view" id="v-gv">
+    <div class="grid2">
+      <div class="panel"><h2>Tag coverage (share of cost carrying each tag key)</h2><div id="tagKeys"></div></div>
+      <div class="panel"><h2>Tag values</h2><div class="row small"><label>Tag key <select id="tagSel"></select></label></div><div id="tagVals"></div></div>
+      <div class="panel"><h2>Untagged cost by subscription</h2><div id="untag"></div></div>
+      <div class="panel"><h2>Marketplace &amp; Azure credit (MACC) eligibility</h2><div id="mkt"></div></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-ex">
+    <div class="panel">
+      <h2>Export</h2>
+      <p class="small">Save the summarised analysis so you can reopen it instantly without re-reading the large files, or export summary tables for Excel / Power BI.</p>
+      <div class="row">
+        <button id="exJson">Save analysis (.json)</button>
+        <button class="sec" id="exCube">Monthly summary (.csv)</button>
+        <button class="sec" id="exRes">Resources (.csv)</button>
+        <button class="sec" id="exMeters">Meters (.csv)</button>
+        <button class="sec" id="exSave">Savings opportunities (.csv)</button>
+        <button class="sec" id="exDaily">Daily cost (.csv)</button>
+      </div>
+      <p class="small muted">The monthly summary has one row per month × subscription × category × pricing model × charge type × region × tagged × publisher type × credit eligibility — small enough to load straight into Power BI Desktop.</p>
+      <h3>Files loaded</h3><div id="exFiles"></div>
+    </div>
+  </section>
+</div>
+</main>
+<div id="chartTip" role="tooltip" hidden></div>
+
+<script id="engine">
+'use strict';
+/* ===== Engine: streaming CSV parse + aggregation (no DOM) ===== */
+const SEP = '\u0001';
+const BASE_DAY = 17532; // 2018-01-01
+const BM_BYTES = 640;   // day bitmap ~14 years
+const ALIASES = {
+  date:['date','usagedate','usagedatetime'], cost:['costinbillingcurrency','cost','pretaxcost'], costUsd:['costinusd'],
+  payg:['paygcostinbillingcurrency'], paygUsd:['paygcostinusd'], currency:['billingcurrency','billingcurrencycode','currency'],
+  cat:['metercategory'], subcat:['metersubcategory'], meter:['metername'], sub:['subscriptionname'], subId:['subscriptionid'],
+  rg:['resourcegroupname','resourcegroup'], rid:['resourceid','instanceid','instancename'], loc:['resourcelocation','location'],
+  region:['meterregion'], pm:['pricingmodel'], ct:['chargetype'], qty:['quantity','consumedquantity'], unit:['unitofmeasure'],
+  tags:['tags'], pubType:['publishertype'], pubName:['publishername'], ce:['isazurecrediteligible'], resv:['reservationname'],
+  benefit:['benefitname'], info:['additionalinfo'], product:['product','productname']
+};
+const COMMIT_RE = /^(Virtual Machines|Azure App Service|SQL Database|SQL Managed Instance|Azure Cosmos DB|Azure Database for (PostgreSQL|MySQL|MariaDB)|Azure Cache for Redis|Redis Cache|Azure Synapse Analytics|Azure Data Explorer|Azure Dedicated Host|Azure VMware Solution|Azure Databricks|Container Instances|Azure Container Apps|Functions|Azure Spring Apps|Azure Red Hat OpenShift|Azure NetApp Files|Azure Data Factory v2)$/i;
+const SZ_RE = /"ServiceType"\s*:\s*"([^"]+)"/;
+const TAG_RE = /"([^"]{1,80})"\s*:\s*"([^"]*)"/g;
+
+let S = newState();
+const dateCache = new Map(), tagCache = new Map(), commitCache = new Map();
+const stringPool = new Map();
+// V8 substrings can retain an entire decoded chunk. Detach strings kept in aggregates.
+function ownString(s){ return s.length > 12 ? s.split('').join('') : s; }
+function intern(s){
+  let value = stringPool.get(s);
+  if(value === undefined){ value = ownString(s); stringPool.set(value,value); }
+  return value;
+}
+
+function newState(){
+  return {version:1, ix:null, rows:0, bad:0, minDay:Infinity, maxDay:-Infinity, days:0, currency:'', ccyMode:'billing',
+    cube:new Map(), daily:new Map(), meters:new Map(), res:new Map(), resv:new Map(), rgs:new Map(),
+    tagKV:new Map(), tagKey:new Map(), pubs:new Map(), files:[], curFile:null, chargeTypes:new Set(), warnings:[], detailMode:'full', tagValuesTruncated:false};
+}
+function num(s){ if(s === undefined || s === '') return NaN; return +s; }
+function add(map, key, a, b){ let v = map.get(key); if(!v){ v = [0,0,0]; map.set(key, v); } v[0]+=a; v[1]+=b; v[2]++; }
+function normLoc(s){ return s ? s.toLowerCase().replace(/\s+/g,'') : '(blank)'; }
+function isCommit(cat){ let v = commitCache.get(cat); if(v === undefined){ v = COMMIT_RE.test(cat); commitCache.set(cat, v); } return v; }
+
+function parseDate(s){
+  let v = dateCache.get(s); if(v) return v;
+  const t = s.trim(); let y, m, d;
+  if(t.length >= 10 && t[4] === '-'){ y = +t.slice(0,4); m = +t.slice(5,7); d = +t.slice(8,10); }
+  else if(t.indexOf('/') > 0){ const p = t.split(/[\/ T]/); m = +p[0]; d = +p[1]; y = +p[2]; }
+  else return null;
+  if(!y || m < 1 || m > 12 || d < 1 || d > 31) return null;
+  const day = Math.floor(Date.UTC(y, m-1, d) / 864e5);
+  const check = new Date(day * 864e5);
+  if(check.getUTCFullYear() !== y || check.getUTCMonth() !== m-1 || check.getUTCDate() !== d) return null;
+  v = {day, month: y + '-' + String(m).padStart(2,'0')};
+  if(dateCache.size < 50000) dateCache.set(ownString(s), v);
+  return v;
+}
+function dayToStr(day){ return new Date(day*864e5).toISOString().slice(0,10); }
+
+/* Quote-aware CSV line parser. Returns null if a quoted field continues on the next line. */
+function parseCSVLine(s){
+  const out = []; const n = s.length; let i = 0;
+  while(true){
+    if(i >= n){ out.push(''); break; }
+    if(s.charCodeAt(i) === 34){
+      let j = i + 1, val = '';
+      while(true){
+        const q = s.indexOf('"', j);
+        if(q < 0) return null;
+        if(s.charCodeAt(q+1) === 34){ val += s.slice(j, q+1); j = q + 2; continue; }
+        val += s.slice(j, q); i = q + 1; break;
+      }
+      out.push(val);
+      if(i < n && s.charCodeAt(i) === 44){ i++; continue; }
+      break;
+    } else {
+      const c = s.indexOf(',', i);
+      if(c < 0){ out.push(s.slice(i)); break; }
+      out.push(s.slice(i, c)); i = c + 1;
+    }
+  }
+  return out;
+}
+
+function mapHeader(h){
+  const lc = h.map(x => x.replace(/^\uFEFF/, '').trim().toLowerCase());
+  const ix = {};
+  for(const k in ALIASES){ ix[k] = -1; for(const a of ALIASES[k]){ const p = lc.indexOf(a); if(p >= 0){ ix[k] = p; break; } } }
+  const missing = ['date','cost','cat'].filter(k => ix[k] < 0);
+  if(missing.length) throw new Error('Required column(s) not found: ' + missing.join(', ') + '. Columns seen: ' + lc.slice(0,15).join(', ') + '…');
+  if(S.ccyMode === 'usd' && ix.costUsd < 0) throw new Error('costInUsd column not found — choose "Billing currency" as the cost basis.');
+  S.ix = ix;
+}
+
+function parseTags(tg){
+  const kv = [], keys = [];
+  TAG_RE.lastIndex = 0; let m;
+  while((m = TAG_RE.exec(tg)) !== null){
+    const k = m[1].trim().toLowerCase(); const v = m[2].trim().slice(0,60) || '(empty)';
+    if(keys.indexOf(k) < 0){ keys.push(k); kv.push(k + SEP + v); }
+  }
+  return {kv, keys};
+}
+
+function processRow(f){
+  const I = S.ix;
+  const dt = parseDate(f[I.date] || '');
+  if(!dt){ S.bad++; return; }
+  const usd = S.ccyMode === 'usd';
+  const cost = num(usd ? f[I.costUsd] : f[I.cost]);
+  if(!Number.isFinite(cost)){ S.bad++; return; }
+  const currency = usd ? 'USD' : (f[I.currency] || '');
+  if(S.currency && currency && S.currency !== currency) throw new Error('Mixed billing currencies (' + S.currency + ', ' + currency + '). Analyse them separately or choose USD.');
+  const day = dt.day, month = dt.month;
+  if(day < S.minDay) S.minDay = day; if(day > S.maxDay) S.maxDay = day;
+  let payg = num(usd ? f[I.paygUsd] : f[I.payg]); if(!Number.isFinite(payg)) payg = cost;
+  if(!S.currency) S.currency = currency;
+  const cat = intern(f[I.cat] || '(blank)');
+  const sub = intern(f[I.sub] || f[I.subId] || '(blank)');
+  const pm = intern(f[I.pm] || 'OnDemand');
+  const ct = intern(f[I.ct] || 'Usage');
+  const loc = intern(normLoc(f[I.loc] || f[I.region] || ''));
+  const tg = I.tags >= 0 ? (f[I.tags] || '') : '';
+  const tagged = tg.length > 4 && tg.indexOf(':') > 0;
+  const pub = intern(f[I.pubType] || 'Azure');
+  const ceRaw = (f[I.ce] || '').toLowerCase();
+  const ce = ceRaw === 'false' ? 'No' : (ceRaw === 'true' ? 'Yes' : 'Unknown');
+  const rg = intern(f[I.rg] || '(none)');
+  S.chargeTypes.add(ct);
+  if(S.curFile) S.curFile.months.add(month);
+
+  add(S.cube, month+SEP+sub+SEP+cat+SEP+pm+SEP+ct+SEP+loc+SEP+(tagged?'Tagged':'Untagged')+SEP+pub+SEP+ce, cost, payg);
+  add(S.daily, day+SEP+sub+SEP+cat, cost, 0);
+  add(S.rgs, sub+SEP+rg, cost, payg);
+  if(pub !== 'Azure' || ce === 'No') add(S.pubs, pub+SEP+intern(f[I.pubName]||'(blank)')+SEP+ce+SEP+cat, cost, 0);
+  const subcat = intern(f[I.subcat] || '');
+  const meter = intern(f[I.meter] || '');
+  if(ct === 'Usage'){
+    const qty = num(f[I.qty]);
+    add(S.meters, sub+SEP+cat+SEP+subcat+SEP+meter+SEP+intern(f[I.unit]||'')+SEP+pm, cost, qty === qty ? qty : 0);
+  }
+  if(pm === 'Reservation' || pm === 'SavingsPlan' || ct.indexOf('Unused') === 0){
+    const nm = intern(f[I.resv] || f[I.benefit] || '(unnamed)');
+    const k = pm+SEP+nm; let v = S.resv.get(k);
+    if(!v){ v = {pm, nm, used:0, usedPayg:0, unused:0, purchase:0, refund:0}; S.resv.set(k, v); }
+    if(ct === 'Usage'){ v.used += cost; v.usedPayg += payg; }
+    else if(ct.indexOf('Unused') === 0) v.unused += cost;
+    else if(ct === 'Purchase') v.purchase += cost;
+    else if(ct === 'Refund') v.refund += cost;
+  }
+  if(tagged){
+    let t = tagCache.get(tg);
+    if(!t){ const owned = ownString(tg); t = parseTags(owned); if(tagCache.size < (S.detailMode === 'summary' ? 5000 : 200000)) tagCache.set(owned, t); }
+    if(S.detailMode === 'full') for(const p of t.kv){
+      if(S.tagKV.size < 60000 || S.tagKV.has(p)) add(S.tagKV, p, cost, 0);
+      else S.tagValuesTruncated = true;
+    }
+    for(const k of t.keys) add(S.tagKey, k, cost, 0);
+  }
+  const rid = f[I.rid];
+  if(rid && S.detailMode === 'full'){
+    const k = rid.toLowerCase(); let r = S.res.get(k);
+    if(!r){ r = {id:ownString(rid), sub, rg, cat, sc:subcat, mn:meter, loc, c:0, p:0, od:0, vh:0, mi:day, ma:day, nd:0, bm:null, win:false, sz:'', tg:tagged}; S.res.set(ownString(k), r); }
+    r.c += cost; r.p += payg;
+    if(day < r.mi) r.mi = day; if(day > r.ma) r.ma = day;
+    if(cat === 'Virtual Machines' && r.cat !== 'Virtual Machines'){ r.cat = cat; r.sc = subcat; r.mn = meter; }
+    if(pm === 'OnDemand' && ct === 'Usage') r.od += cost;
+    if(isCommit(cat)){
+      if(!r.bm) r.bm = new Uint8Array(BM_BYTES);
+      const b = day - BASE_DAY; if(b >= 0 && b < BM_BYTES*8) r.bm[b>>3] |= 1 << (b & 7);
+    }
+    if(cat === 'Virtual Machines' && (f[I.unit] || '').indexOf('Hour') >= 0){
+      const q = num(f[I.qty]); if(q === q) r.vh += q;
+      if(subcat.indexOf('Windows') >= 0 && pm !== 'Spot') r.win = true;
+      if(!r.sz){ const inf = f[I.info]; if(inf){ const m = SZ_RE.exec(inf); if(m) r.sz = intern(m[1]); } }
+    }
+    if(tagged) r.tg = true;
+  }
+}
+
+const tick = () => new Promise(r => setTimeout(r, 0));
+
+async function readFile(file, onProgress){
+  const CH = 4 * 1024 * 1024;
+  const fi = {name:file.name, size:file.size, rows:0, months:new Set()};
+  S.curFile = fi; S.files.push(fi);
+  const dec = new TextDecoder('utf-8');
+  let off = 0, rem = '', header = null, pending = null;
+  const handle = (line) => {
+    if(line.charCodeAt(line.length-1) === 13) line = line.slice(0, -1);
+    if(pending !== null){ line = pending + '\n' + line; pending = null; }
+    if(!line) return;
+    const f = line.indexOf('"') < 0 ? line.split(',') : parseCSVLine(line);
+    if(f === null){ pending = line; if(pending.length > 2e6){ pending = null; S.bad++; } return; }
+    if(!header){ header = f; mapHeader(f); return; }
+    if(f.length !== header.length){ S.bad++; fi.rows++; S.rows++; return; }
+    processRow(f); fi.rows++; S.rows++;
+  };
+  while(off < file.size){
+    const buf = await file.slice(off, off + CH).arrayBuffer();
+    off += CH; const last = off >= file.size;
+    const text = rem + dec.decode(buf, {stream: !last});
+    let start = 0, nl;
+    while((nl = text.indexOf('\n', start)) >= 0){ handle(text.slice(start, nl)); start = nl + 1; }
+    rem = text.slice(start);
+    if(last && rem){ handle(rem); rem = ''; }
+    if(onProgress) onProgress(Math.min(off, file.size));
+    await tick();
+  }
+  if(pending !== null) S.bad++;
+  if(!header) throw new Error(file.name + ': file appears to be empty.');
+}
+
+function popcount(bm){ let n = 0; for(let i = 0; i < bm.length; i++){ let x = bm[i]; while(x){ x &= x-1; n++; } } return n; }
+
+function finalize(derive = true){
+  for(const r of S.res.values()){ if(r.bm){ r.nd = popcount(r.bm); r.bm = null; } }
+  S.days = S.maxDay >= S.minDay ? S.maxDay - S.minDay + 1 : 0;
+  // overlapping months across files => possible double counting
+  const seen = {};
+  for(const f of S.files){ for(const m of f.months){ (seen[m] = seen[m] || []).push(f.name); } }
+  for(const m in seen){ if(seen[m].length > 1) S.warnings.push('Month ' + m + ' appears in more than one file (' + seen[m].join(', ') + '). If the files overlap, totals for that month may be double counted.'); }
+  if(S.bad) S.warnings.push(S.bad.toLocaleString() + ' row(s) could not be parsed and were skipped.');
+  if(!S.days) throw new Error('No valid billing rows found.');
+  if(S.tagValuesTruncated) S.warnings.push('Tag-value detail exceeded 60,000 distinct values and is incomplete. Cost totals and tag-key coverage are unaffected.');
+  if(S.detailMode === 'summary') S.warnings.push('Trends mode: individual resources, resource-based savings and tag-value detail were not retained. Monthly/daily totals, meters, resource groups and tag-key coverage are included.');
+  S.curFile = null;
+  dateCache.clear(); tagCache.clear(); commitCache.clear(); stringPool.clear();
+  if(derive) buildDerived();
+}
+
+function buildDerived(){
+  S.cubeArr = []; for(const [k, v] of S.cube){ const p = k.split(SEP); S.cubeArr.push({m:p[0], sub:p[1], cat:p[2], pm:p[3], ct:p[4], loc:p[5], tag:p[6], pub:p[7], ce:p[8], c:v[0], p:v[1]}); }
+  S.dailyArr = []; for(const [k, v] of S.daily){ const p = k.split(SEP); S.dailyArr.push({d:+p[0], sub:p[1], cat:p[2], c:v[0]}); }
+  S.meterArr = []; for(const [k, v] of S.meters){ const p = k.split(SEP); S.meterArr.push({sub:p[0], cat:p[1], sc:p[2], mn:p[3], unit:p[4], pm:p[5], c:v[0], q:v[1]}); }
+  S.rgArr = []; for(const [k, v] of S.rgs){ const p = k.split(SEP); S.rgArr.push({sub:p[0], rg:p[1], c:v[0]}); }
+  S.resArr = [...S.res.values()];
+}
+
+function serialize(){
+  return JSON.stringify({version:1, detailMode:S.detailMode, demo:!!S.demo, rows:S.rows, bad:S.bad, minDay:S.minDay, maxDay:S.maxDay, currency:S.currency, ccyMode:S.ccyMode,
+    warnings:S.warnings, files:S.files.map(f => ({name:f.name, size:f.size, rows:f.rows, months:[...f.months]})),
+    chargeTypes:[...S.chargeTypes], cube:[...S.cube], daily:[...S.daily], meters:[...S.meters], rgs:[...S.rgs], pubs:[...S.pubs],
+    tagKV:[...S.tagKV], tagKey:[...S.tagKey], resv:[...S.resv],
+    res:S.resArr.map(r => [r.id, r.sub, r.rg, r.cat, r.sc, r.mn, r.loc, r.c, r.p, r.od, r.vh, r.mi, r.ma, r.nd, r.win?1:0, r.sz, r.tg?1:0])});
+}
+function deserialize(txt){
+  const o = JSON.parse(txt); if(!o || o.version !== 1 || !Array.isArray(o.cube)) throw new Error('Not a saved analysis file.');
+  S = newState();
+  Object.assign(S, {detailMode:o.detailMode || 'full', demo:!!o.demo, rows:o.rows, bad:o.bad, minDay:o.minDay, maxDay:o.maxDay, currency:o.currency, ccyMode:o.ccyMode, warnings:o.warnings || []});
+  S.files = o.files.map(f => ({...f, months:new Set(f.months)}));
+  S.chargeTypes = new Set(o.chargeTypes);
+  for(const n of ['cube','daily','meters','rgs','pubs','tagKV','tagKey','resv']) S[n] = new Map(o[n]);
+  for(const a of o.res){ S.res.set(a[0].toLowerCase(), {id:a[0], sub:a[1], rg:a[2], cat:a[3], sc:a[4], mn:a[5], loc:a[6], c:a[7], p:a[8], od:a[9], vh:a[10], mi:a[11], ma:a[12], nd:a[13], win:!!a[14], sz:a[15], tg:!!a[16]}); }
+  S.days = S.maxDay - S.minDay + 1;
+  buildDerived();
+}
+
+/* ===== Savings model ===== */
+function safeRe(s){ try { return s ? new RegExp(s, 'i') : null; } catch(e){ return null; } }
+const LEVERS = {
+  sched:{name:'Schedule non-production VMs', how:'Non-prod VMs (subscription/RG matches the non-prod pattern) running ~24×7. Use auto-shutdown or Start/Stop VMs v2 (e.g. 12h × 5 days); consider Azure Dev/Test subscription pricing for non-prod.'},
+  oldgen:{name:'Modernise previous-generation VMs', how:'VMs on older series (A/D/E/F/G v2–v3 etc.). Move to current v5/v6 (or AMD/Arm) sizes for better price-performance; right-size using Azure Advisor CPU/memory data.'},
+  ahb:{name:'Azure Hybrid Benefit – Windows Server', how:'VMs paying the Windows licence in the meter. Apply AHB where the customer has Windows Server licences with Software Assurance or subscriptions (check the customer EA/CSP licence position).'},
+  commit:{name:'Reservations / Savings plan for steady workloads', how:'On-demand resources running most days (uptime ≥ threshold, still active). Cover with Reservations (stable size/region) or a Compute Savings Plan (flexible). Cross-check Advisor reservation recommendations.'},
+  unused:{name:'Unused reservation / savings plan commitment', how:'Commitment hours paid but not used. Change scope to shared / management group, exchange or right-size the reservation, or align workloads to it.'},
+  sqlahb:{name:'Azure Hybrid Benefit – SQL Server', how:'SQL Server licences billed through Azure (VM licence meters). Apply AHB for SQL Server where licences with SA exist; consider SQL Managed Instance / vCore with AHB.'},
+  snap:{name:'Snapshot clean-up', how:'Managed disk snapshots. Review retention, delete orphaned snapshots, use incremental snapshots on Standard storage.'},
+  hot:{name:'Blob storage tiering', how:'Data stored in the Hot tier. Apply lifecycle management policies to move infrequently accessed data to Cool / Cold / Archive.'},
+  disk:{name:'Premium disk right-sizing', how:'Premium SSD managed disks. Downsize over-provisioned disks, move low-IOPS disks to Standard SSD or Premium SSD v2, delete unattached disks (check Advisor).'},
+  logs:{name:'Log Analytics optimisation', how:'Pay-as-you-go log ingestion. Move to a commitment tier (from 100 GB/day), use Basic/Auxiliary logs for verbose tables, filter with data collection rules.'},
+  egress:{name:'Data transfer / bandwidth review', how:'Internet and inter-region egress. Review architecture (co-locate services, Front Door/CDN caching, Private Link). Savings not estimated.'},
+  market:{name:'Marketplace / non-MACC-eligible spend', how:'Spend not flagged as Azure credit eligible or bought via Marketplace. Check whether it decrements the customer\'s MACC; prefer Azure benefit-eligible offers. Commercial lever – savings not estimated.'}
+};
+function computeSavings(A, F){
+  const out = {}; for(const k in LEVERS) out[k] = {id:k, ...LEVERS[k], basis:0, saving:0, items:[]};
+  if(!S.days) return [];
+  const np = safeRe(A.np), og = safeRe(A.og);
+  const ann = 365 / S.days;
+  const push = (k, label, detail, basis, saving) => { const L = out[k]; L.basis += basis; L.saving += saving; L.items.push({label, detail, basis, saving}); };
+  for(const r of S.resArr){
+    if(F.sub && r.sub !== F.sub) continue; if(F.cat && r.cat !== F.cat) continue;
+    if(r.od <= 0) continue;
+    const active = r.ma >= S.maxDay - 7; if(!active) continue;
+    const span = r.ma - r.mi + 1;
+    const isVM = r.cat === 'Virtual Machines';
+    const up = r.nd ? r.nd / span : 0;
+    const hpd = (isVM && r.nd) ? r.vh / (r.nd * 24) : 0;
+    let rem = r.od / Math.max(span, 28) * 365;
+    const base = rem;
+    const label = resName(r.id), detail = r.sub + ' / ' + r.rg + (r.sz ? ' · ' + r.sz : (r.sc ? ' · ' + r.sc : ''));
+    const isNP = !!(np && np.test(r.sub + ' ' + r.rg));
+    const sched = isVM && isNP && hpd >= 0.9;
+    if(sched){ const s = rem * A.sched/100; push('sched', label, detail, base, s); rem -= s; }
+    if(isVM && og && og.test(r.sc)){ const s = rem * A.oldgen/100; push('oldgen', label, detail, base, s); rem -= s; }
+    if(isVM && r.win){ const s = rem * A.ahb/100; push('ahb', label, detail, base, s); rem -= s; }
+    const steady = span >= 28 && up >= A.uptime/100 && (!isVM || hpd >= 0.75) && isCommit(r.cat);
+    if(steady && !sched){ const s = rem * A.commit/100; push('commit', label, detail, base, s); rem -= s; }
+  }
+  for(const m of S.meterArr){
+    if(F.sub && m.sub !== F.sub) continue; if(F.cat && m.cat !== F.cat) continue;
+    const a = m.c * ann; if(a <= 0) continue;
+    const label = m.mn + (m.sc ? ' (' + m.sc + ')' : ''), detail = m.sub;
+    if(m.pm === 'OnDemand' && /SQL Server/i.test(m.sc + ' ' + m.mn) && (m.cat === 'Virtual Machines Licenses' || /licen/i.test(m.cat + m.sc))) push('sqlahb', label, detail, a, a * A.sql/100);
+    if(/snapshot/i.test(m.mn + ' ' + m.sc)) push('snap', label, detail, a, a * A.snap/100);
+    else if(m.cat === 'Storage' && /hot/i.test(m.mn + ' ' + m.sc) && /data stored/i.test(m.mn)) push('hot', label, detail, a, a * A.hot/100);
+    else if(m.cat === 'Storage' && /premium ssd/i.test(m.sc) && /disk/i.test(m.mn + m.sc) && !/v2/i.test(m.sc)) push('disk', label, detail, a, a * A.disk/100);
+    if(m.pm === 'OnDemand' && /^(Log Analytics|Azure Monitor)$/i.test(m.cat) && /ingest|data included|analytics logs/i.test(m.mn)) push('logs', label, detail, a, a * A.logs/100);
+    if(m.cat === 'Bandwidth' && !/free/i.test(m.mn)) push('egress', label, detail, a, 0);
+  }
+  if(!F.sub && !F.cat) for(const v of S.resv.values()){
+    if(v.unused > 0){ const a = v.unused * ann; push('unused', v.nm, v.pm === 'SavingsPlan' ? 'Savings plan' : 'Reservation', a, a * A.unused/100); }
+  }
+  const mk = new Map();
+  for(const [k, v] of S.pubs){ const p = k.split(SEP); if(F.cat && p[3] !== F.cat) continue; const kk = p[0] + SEP + p[1] + SEP + p[2]; mk.set(kk, (mk.get(kk) || 0) + v[0]); }
+  for(const [k, c] of mk){ const p = k.split(SEP); if(c > 0) push('market', p[1], p[0] + ' · credit eligible: ' + p[2], c * ann, 0); }
+  const arr = Object.values(out).filter(L => L.basis > 0);
+  for(const L of arr){
+    const g = new Map(); for(const it of L.items){ const k = it.label + SEP + it.detail; const e = g.get(k); if(e){ e.basis += it.basis; e.saving += it.saving; } else g.set(k, {...it}); }
+    L.items = [...g.values()].sort((a, b) => (b.saving - a.saving) || (b.basis - a.basis)); L.count = L.items.length;
+  }
+  return arr.sort((a, b) => (b.saving - a.saving) || (b.basis - a.basis));
+}
+function resName(id){ const p = String(id).split('/').filter(Boolean); return p.length ? p[p.length-1] : id; }
+
+/* ===== Illustrative demo data (synthetic) ===== */
+const MCA_COLS = 'invoiceId,billingAccountId,billingAccountName,previousInvoiceId,billingProfileId,billingProfileName,invoiceSectionId,invoiceSectionName,partnerTenantId,partnerName,resellerName,resellerMpnId,customerTenantId,customerName,costCenter,billingPeriodStartDate,billingPeriodEndDate,servicePeriodStartDate,servicePeriodEndDate,date,serviceFamily,productOrderId,productOrderName,consumedService,meterId,meterName,meterCategory,meterSubCategory,meterRegion,productId,product,subscriptionId,subscriptionName,publisherType,publisherId,publisherName,resourceGroupName,resourceId,resourceLocation,location,effectivePrice,quantity,unitOfMeasure,chargeType,billingCurrency,pricingCurrency,costInBillingCurrency,costInPricingCurrency,costInUsd,paygCostInBillingCurrency,paygCostInUsd,exchangeRatePricingToBilling,exchangeRateDate,isAzureCreditEligible,serviceInfo1,serviceInfo2,additionalInfo,tags,partnerEarnedCreditRate,partnerEarnedCreditApplied,payGPrice,frequency,term,reservationId,reservationName,pricingModel,unitPrice,costAllocationRuleName,provider,benefitId,benefitName,priceFactors,supplementalChargeDetails'.split(',');
+function demoCsv(){
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const csvF = v => { v = String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const subs = ['DEMO-Prod-Core','DEMO-Prod-Data','DEMO-NonProd-Dev','DEMO-NonProd-Test','DEMO-Shared-Connectivity'];
+  const series = [['Dv3/DSv3 Series','Standard_D4s_v3',0.38],['Dv5/Dsv5 Series','Standard_D4s_v5',0.33],['Ev3/ESv3 Series','Standard_E8s_v3',0.80],['Ev5/Esv5 Series','Standard_E8s_v5',0.70],['Fsv2 Series','Standard_F8s_v2',0.55],['BS Series','Standard_B2ms',0.12],['Dv2/DSv2 Series','Standard_DS3_v2',0.45]];
+  const R = [];
+  for(let i = 0; i < 44; i++){
+    const sub = subs[i % 4]; const s = series[Math.floor(rnd() * series.length)]; const win = rnd() < 0.5; const np = sub.indexOf('NonProd') >= 0;
+    const ri = !np && rnd() < 0.3; const hrs = np ? (rnd() < 0.7 ? 24 : 10) : 24; const start = rnd() < 0.15 ? 60 : 0;
+    R.push({kind:'vm', sub, rg:(np ? 'rg-app-dev-' : 'rg-app-prd-') + (i % 6), name:'vm-' + (np ? 'dev' : 'prd') + '-' + String(i).padStart(3,'0'), sc:s[0] + (win ? ' Windows' : ''), mn:s[1].replace('Standard_','').replace(/_/g,' '), sz:s[1], rate:s[2] * (win ? 1.45 : 1), hrs, pm:ri ? 'Reservation' : 'OnDemand', start, tags: rnd() < 0.7 ? {environment: np ? 'dev' : 'prod', costcentre: 'CC' + (100 + i % 5), application: 'App' + (i % 7)} : null});
+  }
+  for(let i = 0; i < 14; i++) R.push({kind:'disk', sub:subs[i % 4], rg:'rg-app-' + (i % 6), name:'disk-' + i, cat:'Storage', sc:'Premium SSD Managed Disks', mn:'P30 LRS Disk', unit:'1/Month', rate:(165 + rnd() * 200) / 30, tags:rnd() < 0.5 ? {environment:'prod'} : null});
+  for(let i = 0; i < 5; i++) R.push({kind:'snap', sub:subs[i % 4], rg:'rg-backup', name:'snap-' + i, cat:'Storage', sc:'Standard HDD Managed Disks', mn:'LRS Snapshots', unit:'1 GB/Month', rate:9 + rnd() * 20, tags:null});
+  for(let i = 0; i < 4; i++) R.push({kind:'blob', sub:subs[(i + 1) % 5], rg:'rg-data', name:'stdata' + i, cat:'Storage', sc:'Tiered Block Blob', mn:'Hot LRS Data Stored', unit:'1 GB/Month', rate:40 + rnd() * 160, tags:{environment:'prod'}});
+  for(let i = 0; i < 6; i++) R.push({kind:'sql', sub:subs[i % 2], rg:'rg-sql', name:'sqldb-' + i, cat:'SQL Database', sc:'Single vCore', mn:'vCore', unit:'1 Hour', rate:2.2 + rnd() * 3, hrs:24, pm:'OnDemand', tags:{environment:'prod', application:'ERP'}});
+  for(let i = 0; i < 3; i++) R.push({kind:'app', sub:subs[i], rg:'rg-web', name:'asp-' + i, cat:'Azure App Service', sc:'Premium v3 Plan', mn:'P1 v3 App', unit:'1 Hour', rate:0.35, hrs:24, pm:'OnDemand', tags:null});
+  R.push({kind:'sqllic', sub:subs[0], rg:'rg-sql-vm', name:'vm-sql-prd-01', cat:'Virtual Machines Licenses', sc:'SQL Server Enterprise', mn:'8 vCPU VM License', unit:'1 Hour', rate:2.4, hrs:24, pm:'OnDemand', tags:{environment:'prod'}});
+  R.push({kind:'law', sub:subs[4], rg:'rg-monitor', name:'law-central', cat:'Log Analytics', sc:'', mn:'Analytics Logs Data Ingestion', unit:'1 GB', rate:220, pm:'OnDemand', tags:{environment:'shared'}});
+  R.push({kind:'bw', sub:subs[4], rg:'rg-network', name:'', cat:'Bandwidth', sc:'Rtn Preference: MGN', mn:'Standard Data Transfer Out', unit:'1 GB', rate:85, tags:null});
+  R.push({kind:'dbx', sub:subs[1], rg:'rg-analytics', name:'dbw-analytics', cat:'Azure Databricks', sc:'Premium', mn:'Premium All-purpose Compute DBU', unit:'1 Hour', rate:310, pm:'OnDemand', tags:{environment:'prod', application:'Analytics'}});
+  R.push({kind:'mkt', sub:subs[0], rg:'rg-security', name:'fw-appliance', cat:'Virtual Machines', sc:'', mn:'NGFW BYOL', unit:'1 Hour', rate:4.2, hrs:24, pm:'OnDemand', pub:'Marketplace', ce:'False', tags:{environment:'prod'}});
+  const lines = [MCA_COLS.map(csvF).join(',')];
+  const startDay = Math.floor(Date.UTC(2026, 4, 1) / 864e5), endDay = Math.floor(Date.UTC(2026, 9, 31) / 864e5);
+  for(let d = startDay; d <= endDay; d++){
+    const ds = dayToStr(d); const mo = new Date(d * 864e5).getUTCMonth(); const growth = 1 + (mo - 4) * 0.03;
+    for(const r of R){
+      if(r.start && d < startDay + r.start) continue;
+      const o = {date:ds, billingCurrency:'AUD', pricingCurrency:'USD', chargeType:'Usage', publisherType:r.pub || 'Azure', publisherName:r.pub ? 'Contoso Security' : 'Microsoft', isAzureCreditEligible:r.ce || 'True', subscriptionName:r.sub, subscriptionId:'00000000-0000-0000-0000-00000000000' + subs.indexOf(r.sub), resourceGroupName:r.rg, resourceLocation:'australiaeast', location:'AU East', meterRegion:'AU East', pricingModel:r.pm || 'OnDemand', customerName:'Demo customer'};
+      let qty, cost, payg;
+      if(r.kind === 'vm'){
+        o.meterCategory = 'Virtual Machines'; o.meterSubCategory = r.sc; o.meterName = r.mn; o.unitOfMeasure = '1 Hour';
+        o.additionalInfo = JSON.stringify({ServiceType:r.sz, ImageType:'Canonical'}); qty = r.hrs; payg = qty * r.rate * 1.52; cost = r.pm === 'Reservation' ? payg * 0.55 : payg;
+      } else if(r.kind === 'bw' || r.kind === 'law'){
+        o.meterCategory = r.cat; o.meterSubCategory = r.sc; o.meterName = r.mn; o.unitOfMeasure = r.unit; qty = 10 + rnd() * 40; cost = payg = r.rate * (0.8 + rnd() * 0.4);
+      } else if(r.kind === 'dbx'){
+        o.meterCategory = r.cat; o.meterSubCategory = r.sc; o.meterName = r.mn; o.unitOfMeasure = r.unit; qty = 100; const spike = ds === '2026-09-14' || ds === '2026-09-15' ? 6 : 1; cost = payg = r.rate * spike * (0.85 + rnd() * 0.3);
+      } else {
+        o.meterCategory = r.cat; o.meterSubCategory = r.sc; o.meterName = r.mn; o.unitOfMeasure = r.unit; qty = r.hrs || 1; cost = payg = (r.hrs ? r.hrs * r.rate * 1.52 : r.rate);
+      }
+      cost *= growth; payg *= growth;
+      if(r.name) o.resourceId = '/subscriptions/' + o.subscriptionId + '/resourceGroups/' + r.rg + '/providers/Microsoft.Compute/' + (r.kind === 'vm' ? 'virtualMachines/' : 'resources/') + r.name;
+      o.quantity = qty.toFixed(4); o.costInBillingCurrency = cost.toFixed(6); o.costInUsd = (cost / 1.52).toFixed(6); o.paygCostInBillingCurrency = payg.toFixed(6); o.paygCostInUsd = (payg / 1.52).toFixed(6);
+      o.tags = r.tags ? JSON.stringify(r.tags) : '';
+      if(r.pm === 'Reservation') o.reservationName = 'RI_D-Series_AUE_3yr';
+      lines.push(MCA_COLS.map(c => csvF(o[c] == null ? '' : o[c])).join(','));
+    }
+    lines.push(MCA_COLS.map(c => csvF(({date:ds, billingCurrency:'AUD', chargeType:'UnusedReservation', pricingModel:'Reservation', reservationName:'RI_E-Series_AUE_1yr', meterCategory:'Virtual Machines', meterSubCategory:'Ev3/ESv3 Series', meterName:'E8s v3', unitOfMeasure:'1 Hour', quantity:'14', costInBillingCurrency:(14 * 0.8 * 1.52 * 0.6).toFixed(4), paygCostInBillingCurrency:'0', subscriptionName:subs[0], isAzureCreditEligible:'True', publisherType:'Azure'})[c] ?? '')).join(','));
+  }
+  return lines.join('\r\n');
+}
+</script>
+
+<script>
+'use strict';
+/* ===== UI ===== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const PAL = ['#0f6cbd','#e3008c','#00a5af','#ca5010','#8764b8','#498205','#c19c00','#d13438','#4f6bed','#986f0b','#7a7574'];
+const nf0 = new Intl.NumberFormat('en-AU', {maximumFractionDigits:0});
+const nf1 = new Intl.NumberFormat('en-AU', {maximumFractionDigits:1});
+const F = {sub:'', cat:'', month:''};
+let pickedFiles = [];
+let SAV = [];
+let loadWorker = null, selectedDay = null;
+
+function money(v){ const n = Math.round(v); return (n < 0 ? '-' : '') + '$' + nf0.format(Math.abs(n)); }
+function compact(v){ const a = Math.abs(v); return '$' + (a >= 1e6 ? nf1.format(v/1e6) + 'M' : a >= 1e3 ? nf1.format(v/1e3) + 'k' : nf0.format(v)); }
+function pct(a, b){ return b ? nf1.format(100 * a / b) + '%' : '–'; }
+function niceMax(v){ if(v <= 0) return 1; const e = Math.pow(10, Math.floor(Math.log10(v))); const f = v / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; }
+function log(msg){ $('#log').textContent += msg + '\n'; }
+function locLabel(l){ return l; }
+
+/* ---------- Loading ---------- */
+const drop = $('#drop');
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); setFiles([...e.dataTransfer.files]); });
+$('#fileIn').addEventListener('change', e => setFiles([...e.target.files]));
+$('#folderIn').addEventListener('change', e => setFiles([...e.target.files]));
+function setFiles(list){
+  pickedFiles = list.filter(f => /\.csv$/i.test(f.name)).sort((a,b) => a.name.localeCompare(b.name));
+  const seen = new Set();
+  pickedFiles = pickedFiles.filter(f => { const key = f.name + SEP + f.size + SEP + f.lastModified; if(seen.has(key)) return false; seen.add(key); return true; });
+  $('#fileList').textContent = list.map(f => f.name + ' — ' + nf1.format(f.size / 1048576) + ' MB' + (/\.csv$/i.test(f.name) ? '' : ' (excluded: not a billing CSV)')).join('\n');
+  $('#fileList').style.whiteSpace = 'pre-line';
+  $('#btnGo').disabled = !pickedFiles.length;
+}
+$('#btnGo').addEventListener('click', () => runFiles(pickedFiles));
+$('#btnDemo').addEventListener('click', () => { const csv = demoCsv(); runFiles([new File([csv], 'DEMO_illustrative_usage.csv', {type:'text/csv'})], true); });
+$('#btnLoadJson').addEventListener('click', () => $('#jsonIn').click());
+$('#jsonIn').addEventListener('change', async e => {
+  const f = e.target.files[0]; if(!f) return;
+  try { deserialize(await f.text()); log('Opened saved analysis ' + f.name); showApp(); }
+  catch(err){ log('Could not open: ' + err.message); }
+});
+$('#btnReset').addEventListener('click', () => location.reload());
+
+function loadingControls(busy){
+  for(const id of ['btnGo','btnDemo','btnLoadJson','fileIn','folderIn','ccy','detailMode']) $('#' + id).disabled = busy || (id === 'btnGo' && !pickedFiles.length);
+  $('#btnCancel').disabled = !busy;
+}
+$('#btnCancel').addEventListener('click', () => {
+  if(loadWorker) loadWorker.terminate();
+  loadWorker = null; loadingControls(false); log('Cancelled. Partial results discarded.');
+});
+function runFiles(files, demo){
+  if(loadWorker || !files.length) return;
+  $('#log').textContent = ''; $('#prog').classList.remove('hidden'); $('#prog div').style.inlineSize = '0%'; loadingControls(true);
+  const t0 = performance.now();
+  const source = $('#engine').textContent + `
+self.onmessage = async ({data}) => {
+  try {
+    S = newState(); S.ccyMode = data.ccyMode; S.detailMode = data.detailMode; S.demo = data.demo;
+    const total = data.files.reduce((n,f) => n + f.size, 0); let done = 0;
+    for(const file of data.files){
+      self.postMessage({type:'log', message:'Reading ' + file.name + '...'});
+      const base = done;
+      await readFile(file, off => self.postMessage({type:'progress', value:100 * (base + off) / total}));
+      done += file.size;
+      self.postMessage({type:'log', message:S.files[S.files.length-1].rows.toLocaleString() + ' rows read'});
+    }
+    finalize(false);
+    self.postMessage({type:'done', state:S});
+  } catch(error){ self.postMessage({type:'error', message:error.message}); }
+};`;
+  let url;
+  const finish = () => { if(loadWorker) loadWorker.terminate(); loadWorker = null; loadingControls(false); };
+  try {
+    url = URL.createObjectURL(new Blob([source], {type:'text/javascript'}));
+    loadWorker = new Worker(url);
+    loadWorker.onmessage = ({data}) => {
+      if(data.type === 'log') log(data.message);
+      else if(data.type === 'progress') $('#prog div').style.inlineSize = data.value + '%';
+      else if(data.type === 'error'){ log('Error: ' + data.message + ' Partial results discarded.'); finish(); }
+      else if(data.type === 'done'){
+        S = data.state; finish();
+        try { buildDerived(); showApp(); log('Done in ' + nf1.format((performance.now()-t0)/1000) + ' s — ' + nf0.format(S.rows) + ' rows. Save the analysis from Export to reopen it instantly.'); }
+        catch(error){ log('Error displaying analysis: ' + error.message); }
+      }
+    };
+    loadWorker.onerror = e => { log('Worker failed: ' + e.message + '. Try Trends mode or fewer files.'); finish(); };
+    loadWorker.postMessage({files, ccyMode:$('#ccy').value, detailMode:demo ? 'full' : $('#detailMode').value, demo:!!demo});
+  } catch(error){ finish(); log('Could not start analysis: ' + error.message); }
+  finally { if(url) URL.revokeObjectURL(url); }
+}
+
+function showApp(){
+  F.sub = ''; F.cat = ''; F.month = ''; selectedDay = null;
+  $('#app').classList.remove('hidden'); $('#filters').classList.remove('hidden');
+  const subs = [...new Set(S.cubeArr.map(r => r.sub))].sort(), cats = [...new Set(S.cubeArr.map(r => r.cat))].sort();
+  $('#fSub').innerHTML = '<option value="">All subscriptions</option>' + subs.map(s => '<option>' + esc(s) + '</option>').join('');
+  $('#fCat').innerHTML = '<option value="">All categories</option>' + cats.map(s => '<option>' + esc(s) + '</option>').join('');
+  $('#fMonth').innerHTML = '<option value="">All months</option>' + monthsOf(S.cubeArr).map(m => '<option>' + esc(m) + '</option>').join('');
+  $('#exRes').disabled = S.detailMode === 'summary';
+  const amort = S.chargeTypes.has('UnusedReservation') || S.chargeTypes.has('UnusedSavingsPlan');
+  const purch = S.chargeTypes.has('Purchase');
+  let note = '<div class="panel small"><strong>Data:</strong> ' + esc(dayToStr(S.minDay)) + ' to ' + esc(dayToStr(S.maxDay)) + ' (' + S.days + ' days) · ' + nf0.format(S.rows) + ' rows · ' + S.files.length + ' file(s) · ' + (S.detailMode === 'summary' ? 'resource detail not retained' : nf0.format(S.res.size) + ' resources') + ' · amounts in ' + esc(S.currency || 'billing currency') +
+    ' · cost view: ' + (amort ? '<span class="tag">Amortised (includes unused commitment)</span>' : purch ? '<span class="tag w">Actual cost (reservation purchases shown as Purchase lines)</span>' : '<span class="tag">Usage</span>');
+  if(S.demo) note += '<div class="note">Illustrative synthetic demo data — not customer data.</div>';
+  for(const w of S.warnings) note += '<div class="note">' + esc(w) + '</div>';
+  $('#dataNote').innerHTML = note + '</div>';
+  $('#exFiles').innerHTML = table(['File','Size (MB)','Rows','Months'], S.files.map(f => [esc(f.name), nf1.format(f.size / 1048576), nf0.format(f.rows), esc([...f.months].sort().join(', '))]), [1,2]);
+  renderAll();
+}
+
+$('#fSub').addEventListener('change', e => { F.sub = e.target.value; renderAll(); });
+$('#fCat').addEventListener('change', e => { F.cat = e.target.value; renderAll(); });
+$('#fMonth').addEventListener('change', e => { F.month = e.target.value; selectedDay = null; renderAll(); });
+$('#btnClear').addEventListener('click', () => { F.sub = ''; F.cat = ''; F.month = ''; selectedDay = null; renderAll(); });
+$('#tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + b.dataset.v));
+  renderActive();
+});
+
+/* ---------- helpers ---------- */
+const cubeF = () => S.cubeArr.filter(r => (!F.sub || r.sub === F.sub) && (!F.cat || r.cat === F.cat) && (!F.month || r.m === F.month));
+function sumBy(arr, kf, vf){ const m = new Map(); for(const r of arr){ const k = kf(r); m.set(k, (m.get(k) || 0) + vf(r)); } return m; }
+function topN(map, n){ const a = [...map].sort((x, y) => y[1] - x[1]); if(a.length <= n) return a; const rest = a.slice(n).reduce((s, x) => s + x[1], 0); return a.slice(0, n).concat([['Other', rest]]); }
+function table(h, rows, numCols){ numCols = numCols || []; return '<table><thead><tr>' + h.map((x, i) => '<th' + (numCols.includes(i) ? ' class="num"' : '') + '>' + x + '</th>').join('') + '</tr></thead><tbody>' + rows.map(r => '<tr>' + r.map((c, i) => '<td' + (numCols.includes(i) ? ' class="num"' : '') + '>' + c + '</td>').join('') + '</tr>').join('') + '</tbody></table>'; }
+function hitAttrs(tip, filters){
+  return ' tabindex="0" role="button" aria-describedby="chartTip" aria-label="' + esc(tip) + '" data-tip="' + esc(tip) + '" data-filter="' + esc(JSON.stringify(filters)) + '"';
+}
+function tipAttrs(tip){
+  return ' tabindex="0" aria-describedby="chartTip" aria-label="' + esc(tip) + '" data-tip="' + esc(tip) + '"';
+}
+function showTip(el, event){
+  const tip = $('#chartTip'); tip.textContent = el.dataset.tip; tip.hidden = false;
+  const rect = el.getBoundingClientRect(), x = event.clientX ?? rect.left, y = event.clientY ?? rect.top;
+  tip.style.left = Math.max(8,Math.min(x+12,innerWidth-tip.offsetWidth-8)) + 'px';
+  tip.style.top = Math.max(8,Math.min(y+12,innerHeight-tip.offsetHeight-8)) + 'px';
+}
+document.addEventListener('pointerover', e => { const el = e.target.closest('[data-tip]'); if(el) showTip(el,e); });
+document.addEventListener('pointerout', e => { if(e.target.closest('[data-tip]')) $('#chartTip').hidden = true; });
+document.addEventListener('focusin', e => { if(e.target.matches('[data-tip]')) showTip(e.target,e); });
+document.addEventListener('focusout', () => { $('#chartTip').hidden = true; });
+function applyChartFilter(el){
+  const choice = JSON.parse(el.dataset.filter);
+  if(choice.day){
+    selectedDay = choice.day; renderDayDrivers(); $('#chartTip').hidden = true; return;
+  }
+  for(const key of ['sub','cat','month']) if(choice[key] !== undefined) F[key] = choice[key];
+  renderAll();
+}
+document.addEventListener('click', e => { const el = e.target.closest('[data-filter]'); if(el) applyChartFilter(el); });
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') $('#chartTip').hidden = true;
+  if((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-filter]')){ e.preventDefault(); applyChartFilter(e.target); }
+});
+function bars(items, total, n, dim){
+  const a = items.slice(0, n || 12); const max = Math.max(...a.map(x => x[1]), 1);
+  return '<div class="bars">' + a.map(([l, v]) => {
+    const tip = l + '\n' + money(v) + ' · ' + pct(v,total) + ' of current selection';
+    const attrs = dim ? hitAttrs(tip + '\nClick or Enter to filter by ' + l, {[dim]:l}) : tipAttrs(tip);
+    return '<div class="b"><span class="lab"' + attrs + '>' + esc(l) + '</span><span class="trk"><div class="fil" style="inline-size:' + Math.max(0, 100 * v / max).toFixed(1) + '%"></div></span><span class="val">' + money(v) + '</span><span class="pct">' + pct(v, total) + '</span></div>';
+  }).join('') + '</div>';
+}
+function legend(names){ return '<div class="legend">' + names.map((n, i) => '<span><i style="background:' + PAL[i % PAL.length] + '"></i>' + esc(n) + '</span>').join('') + '</div>'; }
+function stackChart(cols, series){
+  const W = 960, H = 300, L = 60, R = 10, T = 10, B = 30, n = cols.length; if(!n) return '<p class="muted">No data</p>';
+  const tot = cols.map((_, i) => series.reduce((s,se) => s + se.v[i], 0));
+  const positive = cols.map((_,i) => series.reduce((s,se) => s + Math.max(0,se.v[i]),0));
+  const negative = cols.map((_,i) => series.reduce((s,se) => s + Math.min(0,se.v[i]),0));
+  const max = niceMax(Math.max(...positive)), min = -niceMax(-Math.min(...negative)) * (negative.some(v => v < 0) ? 1 : 0);
+  const bw = (W - L - R) / n, ph = H - T - B, y = v => T + ph * (max-v)/(max-min); let g = '';
+  for(let k = 0; k <= 4; k++){ const value = min + (max-min)*k/4, yy = y(value); g += '<line x1="' + L + '" x2="' + (W-R) + '" y1="' + yy + '" y2="' + yy + '" class="grid"/><text x="' + (L-6) + '" y="' + (yy+4) + '" text-anchor="end" class="ax">' + compact(value) + '</text>'; }
+  cols.forEach((m, i) => { let pos = 0, neg = 0; series.forEach((se, j) => {
+    const v = se.v[i], base = v < 0 ? neg : pos; if(v < 0) neg += v; else pos += v;
+    const previous = se.v[i-1], delta = i ? v-previous : null;
+    const tip = m + ' · ' + se.name + '\nCost: ' + money(v) + '\nNet month total: ' + money(tot[i]) + '\nShare of net cost: ' + pct(v, tot[i]) +
+      (delta === null ? '' : '\nChange vs ' + cols[i-1] + ': ' + money(delta) + (previous ? ' (' + nf1.format(100*delta/Math.abs(previous)) + '%)' : ' (new)')) +
+      '\nClick or Enter to filter this month' + (se.other ? '' : ' and category');
+    if(v) g += '<rect x="' + (L+i*bw+bw*.15) + '" y="' + y(Math.max(base,base+v)) + '" width="' + (bw*.7) + '" height="' + (ph*Math.abs(v)/(max-min)) + '" fill="' + PAL[j % PAL.length] + '"' + hitAttrs(tip, se.other ? {month:m} : {month:m,cat:se.name}) + '></rect>';
+  });
+    g += '<text x="' + (L+i*bw+bw/2) + '" y="' + (H-B+16) + '" text-anchor="middle" class="ax">' + esc(m) + '</text><text x="' + (L+i*bw+bw/2) + '" y="' + (y(positive[i])-4) + '" text-anchor="middle" class="ax">' + compact(tot[i]) + '</text>'; });
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart" role="img" aria-label="Monthly cost chart">' + g + '</svg>' + legend(series.map(s => s.name));
+}
+function lineChart(pts, marks){
+  const W = 960, H = 260, L = 60, R = 10, T = 10, B = 30, n = pts.length; if(!n) return '<p class="muted">No data</p>';
+  const max = niceMax(Math.max(...pts.map(p => p.y))), low = Math.min(0,...pts.map(p => p.y)), min = low < 0 ? -niceMax(-low) : 0;
+  const ph = H - T - B, pw = W - L - R; const x = i => L + (n === 1 ? pw/2 : pw*i/(n-1)), y = v => T + ph * (max-v)/(max-min);
+  let g = ''; for(let k = 0; k <= 4; k++){ const value = min+(max-min)*k/4, yy = y(value); g += '<line x1="' + L + '" x2="' + (W-R) + '" y1="' + yy + '" y2="' + yy + '" class="grid"/><text x="' + (L-6) + '" y="' + (yy+4) + '" text-anchor="end" class="ax">' + compact(value) + '</text>'; }
+  g += '<polyline fill="none" stroke="' + PAL[0] + '" stroke-width="1.6" points="' + pts.map((p, i) => x(i).toFixed(1) + ',' + y(p.y).toFixed(1)).join(' ') + '"/>';
+  const step = Math.max(1, Math.ceil(n / 10)); pts.forEach((p, i) => { if(i % step === 0) g += '<text x="' + x(i) + '" y="' + (H - B + 16) + '" text-anchor="middle" class="ax">' + esc(p.x.slice(5)) + '</text>'; });
+  pts.forEach((p,i) => {
+    g += '<circle cx="' + x(i) + '" cy="' + y(p.y) + '" r="3" fill="' + (marks.has(i) ? '#d13438' : PAL[0]) + '"/>';
+    const left = Math.max(L,x(i)-pw/Math.max(1,n-1)/2), right = Math.min(W-R,x(i)+pw/Math.max(1,n-1)/2);
+    g += '<rect x="' + left + '" y="' + T + '" width="' + Math.max(1,right-left) + '" height="' + ph + '" fill="transparent"' + hitAttrs(p.tip, {day:p.x}) + '></rect>';
+  });
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart" role="img" aria-label="Daily cost chart">' + g + '</svg>';
+}
+function donut(items){
+  const tot = items.reduce((s, x) => s + Math.max(0, x[1]), 0); if(!tot) return '<p class="muted">No data</p>';
+  let a0 = -Math.PI / 2, g = ''; const cx = 90, cy = 90, r = 80, ri = 48;
+  items.forEach(([l, v], i) => { v = Math.max(0, v); if(!v) return; const a1 = a0 + 2 * Math.PI * v / tot - 1e-6; const lg = (a1 - a0) > Math.PI ? 1 : 0;
+    const p = [cx + r*Math.cos(a0), cy + r*Math.sin(a0), cx + r*Math.cos(a1), cy + r*Math.sin(a1), cx + ri*Math.cos(a1), cy + ri*Math.sin(a1), cx + ri*Math.cos(a0), cy + ri*Math.sin(a0)].map(n => n.toFixed(2));
+    g += '<path d="M' + p[0] + ' ' + p[1] + ' A' + r + ' ' + r + ' 0 ' + lg + ' 1 ' + p[2] + ' ' + p[3] + ' L' + p[4] + ' ' + p[5] + ' A' + ri + ' ' + ri + ' 0 ' + lg + ' 0 ' + p[6] + ' ' + p[7] + ' Z" fill="' + PAL[i % PAL.length] + '"' + tipAttrs(l + '\nCost: ' + money(v) + '\nShare of positive usage cost: ' + pct(v,tot)) + '></path>'; a0 = a1; });
+  return '<div class="row"><svg viewBox="0 0 180 180" style="inline-size:170px" role="img" aria-label="Donut chart">' + g + '</svg><div>' + items.map(([l, v], i) => '<div class="small"><i style="display:inline-block;inline-size:10px;block-size:10px;background:' + PAL[i % PAL.length] + ';margin-inline-end:6px"></i>' + esc(l) + ': <strong>' + money(v) + '</strong> (' + pct(Math.max(0,v), tot) + ')</div>').join('') + '</div></div>' + (items.some(x => x[1] < 0) ? '<p class="small muted">Slices show positive usage only. Negative costs remain included in totals and signed cost charts.</p>' : '');
+}
+function kpi(l, v, n, hl){ return '<div class="kpi' + (hl ? ' hl' : '') + '"><div class="l">' + esc(l) + '</div><div class="v">' + v + '</div><div class="n">' + (n || '') + '</div></div>'; }
+function monthsOf(arr){ return [...new Set(arr.map(r => r.m))].sort(); }
+function lastFullMonth(months){
+  return [...months].reverse().find(m => {
+    const [year,month] = m.split('-').map(Number);
+    return S.minDay <= Date.UTC(year,month-1,1)/864e5 && S.maxDay >= Date.UTC(year,month,0)/864e5;
+  });
+}
+function assumptions(){ const g = id => +$(id).value || 0; return {commit:g('#aCommit'), uptime:g('#aUptime'), ahb:g('#aAhb'), sched:g('#aSched'), oldgen:g('#aOld'), unused:g('#aUnused'), sql:g('#aSql'), snap:g('#aSnap'), hot:g('#aHot'), disk:g('#aDisk'), logs:g('#aLogs'), np:$('#aNp').value, og:$('#aOg').value}; }
+document.querySelectorAll('#assump input').forEach(i => i.addEventListener('change', renderActive));
+
+/* ---------- views ---------- */
+function renderActive(){
+  const view = $('#tabs button.on').dataset.v;
+  const renderers = {ov:renderOverview,sv:renderSavings,tr:renderTrends,bd:renderBreakdown,rs:renderResources,cm:renderCommit,gv:renderGov};
+  if(renderers[view]) renderers[view]();
+}
+function renderAll(){
+  for(const [id,key] of [['fSub','sub'],['fCat','cat'],['fMonth','month']]) $('#' + id).value = F[key];
+  $('#chartTip').hidden = true;
+  $('#filterNote').textContent = 'Chart filters: ' + (F.sub || 'all subscriptions') + ' · ' + (F.cat || 'all categories') + ' · ' + (F.month || 'all months') +
+    '. Hover or focus chart items for details; click or Enter to filter. Month applies to Overview, Trends, monthly Breakdown and commitment coverage only. Resource, savings, meter, resource-group, tag and utilisation detail uses the whole loaded period. Exports contain the whole analysis.';
+  renderActive();
+}
+
+function renderOverview(){
+  SAV = computeSavings(assumptions(), F);
+  const rows = cubeF(); const tot = rows.reduce((s, r) => s + r.c, 0), payg = rows.reduce((s, r) => s + r.p, 0);
+  const months = monthsOf(rows); const lfm = lastFullMonth(months);
+  const lfmCost = rows.filter(r => r.m === lfm).reduce((s, r) => s + r.c, 0);
+  const usage = rows.filter(r => r.ct === 'Usage'); const usageTot = usage.reduce((s, r) => s + r.c, 0);
+  const od = usage.filter(r => r.pm === 'OnDemand').reduce((s, r) => s + r.c, 0);
+  const unused = rows.filter(r => r.ct.indexOf('Unused') === 0).reduce((s, r) => s + r.c, 0);
+  const untag = rows.filter(r => r.tag === 'Untagged').reduce((s, r) => s + r.c, 0);
+  const nonCe = rows.filter(r => r.ce === 'No').reduce((s, r) => s + r.c, 0);
+  const saveTot = SAV.reduce((s, L) => s + L.saving, 0);
+  const runRate = lfmCost * 12;
+  $('#kpis').innerHTML = kpi('Total cost', money(tot), dayToStr(S.minDay) + ' → ' + dayToStr(S.maxDay)) +
+    kpi('Last full month' + (lfm ? ' (' + lfm + ')' : ''), money(lfmCost), 'Annualised run-rate ' + money(runRate)) +
+    kpi('Discount vs PAYG already realised', money(payg - tot), pct(payg - tot, payg) + ' below pay-as-you-go') +
+    kpi('On-demand share of usage', pct(od, usageTot), money(od) + ' at on-demand rates') +
+    kpi('Unused commitment', money(unused), unused ? 'Paid but unused reservation / savings plan' : 'None found (or actual-cost view)') +
+    kpi('Untagged spend', pct(untag, tot), money(untag)) +
+    kpi('Not Azure-credit (MACC) eligible', money(nonCe), pct(nonCe, tot) + ' of spend') +
+    kpi('Indicative annual savings identified', money(saveTot), runRate ? pct(saveTot, runRate) + ' of annual run-rate' : '', true);
+  const ranked = [...sumBy(rows,r => r.cat,r => r.c)].sort((a,b) => Math.abs(b[1])-Math.abs(a[1]));
+  const top = ranked.slice(0,9).map(x => x[0]);
+  const seriesNames = top.map(name => ({name,other:false}));
+  if(ranked.length > 9) seriesNames.push({name:'Other categories',other:true});
+  const monthly = new Map(); for(const r of rows){ const key = r.m+SEP+(top.includes(r.cat) ? r.cat : 'Other categories'); monthly.set(key,(monthly.get(key)||0)+r.c); }
+  const ser = seriesNames.map(se => ({...se,v:months.map(m => monthly.get(m+SEP+se.name)||0)}));
+  $('#chMonthly').innerHTML = stackChart(months, ser) + (months.length && lfm !== months[months.length-1] ? '<p class="small muted">The latest selected month may be partial; compare daily run rates before interpreting monthly changes.</p>' : '');
+  $('#chCat').innerHTML = bars([...sumBy(rows, r => r.cat, r => r.c)].sort((a, b) => b[1] - a[1]), tot, 12, 'cat');
+  $('#chSub').innerHTML = bars([...sumBy(rows, r => r.sub, r => r.c)].sort((a, b) => b[1] - a[1]), tot, 12, 'sub');
+  $('#chLoc').innerHTML = bars([...sumBy(rows, r => r.loc, r => r.c)].sort((a, b) => b[1] - a[1]), tot, 10);
+  $('#chPm').innerHTML = donut([...sumBy(usage, r => r.pm, r => r.c)].sort((a, b) => b[1] - a[1]));
+  $('#ovSave').innerHTML = SAV.length ? table(['Opportunity','In-scope annual cost','Indicative annual saving','Items'], SAV.slice(0, 8).map(L => [esc(L.name), money(L.basis), L.saving ? '<strong>' + money(L.saving) + '</strong>' : '<span class="muted">review</span>', nf0.format(L.count)]), [1,2,3]) : '<p class="muted">No opportunities found with current assumptions.</p>';
+}
+
+function renderSavings(){
+  SAV = computeSavings(assumptions(), F);
+  const tot = SAV.reduce((s, L) => s + L.saving, 0);
+  const rows = cubeF(); const months = monthsOf(rows); const lfm = lastFullMonth(months); const rr = rows.filter(r => r.m === lfm).reduce((s, r) => s + r.c, 0) * 12;
+  $('#svKpis').innerHTML = kpi('Indicative annual savings', money(tot), rr ? pct(tot, rr) + ' of annual run-rate ' + money(rr) : '', true) +
+    SAV.filter(L => L.saving > 0).slice(0, 3).map(L => kpi(L.name, money(L.saving), nf0.format(L.count) + ' items')).join('');
+  $('#svTable').innerHTML = table(['Opportunity','What to do','In-scope annual cost','Indicative annual saving','Items'], SAV.map(L => ['<strong>' + esc(L.name) + '</strong>', '<span class="small">' + esc(L.how) + '</span>', money(L.basis), L.saving ? '<strong>' + money(L.saving) + '</strong>' : '<span class="muted">review</span>', nf0.format(L.count)]), [2,3,4]);
+  $('#svDetail').innerHTML = SAV.map(L => '<details><summary>' + esc(L.name) + ' — ' + (L.saving ? money(L.saving) + ' / yr' : money(L.basis) + ' / yr in scope') + ' (' + L.count + ' items)</summary>' +
+    '<div class="tw">' + table(['Item','Subscription / RG / detail','Annual cost in scope','Indicative saving'], L.items.slice(0, 100).map(it => [esc(it.label), '<span class="small">' + esc(it.detail) + '</span>', money(it.basis), it.saving ? money(it.saving) : '–']), [2,3]) + '</div>' +
+    (L.items.length > 100 ? '<p class="small muted">Top 100 shown — export the full list from the Export tab.</p>' : '') + '</details>').join('');
+}
+
+function renderTrends(){
+  const d = S.dailyArr.filter(r => (!F.sub || r.sub === F.sub) && (!F.cat || r.cat === F.cat));
+  const byDay = sumBy(d, r => r.d, r => r.c); const pts = [], marks = new Set();
+  const drivers = new Map();
+  for(const r of d){ let entry = drivers.get(r.d); if(!entry){ entry = new Map(); drivers.set(r.d,entry); } entry.set(r.cat,(entry.get(r.cat)||0)+r.c); }
+  for(let day = S.minDay; day <= S.maxDay; day++){
+    const date = dayToStr(day); if(F.month && !date.startsWith(F.month)) continue;
+    const value = byDay.get(day)||0, prev = byDay.get(day-1);
+    const history = []; for(let offset = 1; offset <= 7 && day-offset >= S.minDay; offset++) history.push(byDay.get(day-offset)||0);
+    const avg = history.length ? history.reduce((s,v) => s+v,0)/history.length : null;
+    const leader = [...(drivers.get(day)||new Map())].sort((a,b) => Math.abs(b[1])-Math.abs(a[1]))[0];
+    pts.push({x:date,y:value,tip:date + '\nCost: ' + money(value) + (prev === undefined ? '' : '\nChange vs previous day: ' + money(value-prev)) +
+      (avg === null ? '' : '\nTrailing 7-day average: ' + money(avg)) + (leader ? '\nLargest category: ' + leader[0] + ' · ' + money(leader[1]) : '\nNo usage recorded') + '\nClick or Enter to inspect drivers'});
+  }
+  const spikes = (ys) => { const out = []; for(let i = 7; i < ys.length; i++){ const w = ys.slice(Math.max(0, i-14), i); const mu = w.reduce((s, v) => s + v, 0) / w.length; const sd = Math.sqrt(w.reduce((s, v) => s + (v-mu)*(v-mu), 0) / w.length); if(ys[i] > mu + 3*sd && ys[i] > mu * 1.25 && ys[i] - mu > 1) out.push({i, v:ys[i], mu}); } return out; };
+  spikes(pts.map(p => p.y)).forEach(s => marks.add(s.i));
+  $('#chDaily').innerHTML = lineChart(pts, marks);
+  const cats = topN(sumBy(d, r => r.cat, r => r.c), 20).map(x => x[0]).filter(c => c !== 'Other'); const an = [];
+  for(const c of cats){ const m = sumBy(d.filter(r => r.cat === c), r => r.d, r => r.c); const ys = pts.map(p => m.get(Date.parse(p.x)/864e5)||0); for(const s of spikes(ys)) an.push([pts[s.i].x, c, s.v, s.mu]); }
+  an.sort((a, b) => (b[2] - b[3]) - (a[2] - a[3]));
+  $('#anom').innerHTML = an.length ? '<div class="tw">' + table(['Date','Category','Cost that day','Typical (14-day avg)','Excess'], an.slice(0, 60).map(a => [a[0], esc(a[1]), money(a[2]), money(a[3]), '<span class="pos">' + money(a[2] - a[3]) + '</span>']), [2,3,4]) + '</div>' : '<p class="muted">No significant spikes detected.</p>';
+  renderMovers();
+  if(!pts.some(p => p.x === selectedDay)) selectedDay = pts.length ? pts[pts.length-1].x : null;
+  renderDayDrivers();
+}
+function renderDayDrivers(){
+  if(!selectedDay){ $('#dayDrivers').textContent = 'No days in this selection.'; return; }
+  const day = Date.parse(selectedDay)/864e5;
+  const rows = S.dailyArr.filter(r => r.d === day && (!F.sub || r.sub === F.sub) && (!F.cat || r.cat === F.cat));
+  const total = rows.reduce((s,r) => s+r.c,0), rank = dim => [...sumBy(rows,r => r[dim],r => r.c)].sort((a,b) => Math.abs(b[1])-Math.abs(a[1]));
+  $('#dayDrivers').innerHTML = '<p><strong>' + esc(selectedDay) + ' · ' + money(total) + '</strong></p><div class="grid2"><div><h3>Categories</h3>' +
+    bars(rank('cat'),total,12,'cat') + '</div><div><h3>Subscriptions</h3>' + bars(rank('sub'),total,12,'sub') + '</div></div>';
+}
+function renderMovers(){
+  const rows = S.cubeArr.filter(r => (!F.sub || r.sub === F.sub) && (!F.cat || r.cat === F.cat));
+  const months = monthsOf(rows); const lfm = F.month || lastFullMonth(months); const prev = months[months.indexOf(lfm) - 1];
+  if(!prev){ $('#movers').innerHTML = '<p class="muted">Need at least two full months.</p>'; return; }
+  const dim = $('#mvDim').value; const a = sumBy(rows.filter(r => r.m === prev), r => r[dim], r => r.c), b = sumBy(rows.filter(r => r.m === lfm), r => r[dim], r => r.c);
+  const keys = new Set([...a.keys(), ...b.keys()]); const list = [...keys].map(k => [k, a.get(k) || 0, b.get(k) || 0]).map(x => [...x, x[2] - x[1]]).sort((x, y) => Math.abs(y[3]) - Math.abs(x[3]));
+  $('#movers').innerHTML = '<p class="small muted">' + esc(prev) + ' → ' + esc(lfm) + '</p><div class="tw">' + table(['Item', esc(prev), esc(lfm), 'Change', '%'], list.slice(0, 25).map(x => [esc(x[0]), money(x[1]), money(x[2]), '<span class="' + (x[3] > 0 ? 'pos' : 'neg') + '">' + money(x[3]) + '</span>', x[1] ? nf1.format(100 * x[3] / x[1]) + '%' : 'new']), [1,2,3,4]) + '</div>';
+}
+$('#mvDim').addEventListener('change', renderMovers);
+
+function renderBreakdown(){
+  const dim = $('#bdDim').value; let rows, months;
+  if(dim === 'rg'){ const list = S.rgArr.filter(r => !F.sub || r.sub === F.sub).sort((a, b) => b.c - a.c); const tot = list.reduce((s, r) => s + r.c, 0);
+    $('#bdOut').innerHTML = '<p class="small muted">Resource group totals for the whole period (category filter not applied).</p><div class="tw">' + table(['Subscription','Resource group','Cost','Share'], list.slice(0, 500).map(r => [esc(r.sub), esc(r.rg), money(r.c), pct(r.c, tot)]), [2,3]) + '</div>'; return; }
+  if(dim === 'meter'){ const list = S.meterArr.filter(m => (!F.sub || m.sub === F.sub) && (!F.cat || m.cat === F.cat)); const g = new Map();
+    for(const m of list){ const k = m.cat + SEP + m.sc + SEP + m.mn + SEP + m.unit + SEP + m.pm; const e = g.get(k) || [0, 0]; e[0] += m.c; e[1] += m.q; g.set(k, e); }
+    const arr = [...g].sort((a, b) => b[1][0] - a[1][0]); const tot = arr.reduce((s, x) => s + x[1][0], 0);
+    $('#bdOut').innerHTML = '<p class="small muted">Usage meters for the whole period.</p><div class="tw">' + table(['Category','Sub-category','Meter','Unit','Pricing','Quantity','Cost','Share','Avg unit cost'], arr.slice(0, 500).map(([k, v]) => { const p = k.split(SEP); return [esc(p[0]), esc(p[1]), esc(p[2]), esc(p[3]), esc(p[4]), nf0.format(v[1]), money(v[0]), pct(v[0], tot), v[1] ? '$' + (v[0] / v[1]).toFixed(4) : '–']; }), [5,6,7,8]) + '</div>'; return; }
+  rows = cubeF(); months = monthsOf(rows); const tot = rows.reduce((s, r) => s + r.c, 0);
+  const g = new Map(); for(const r of rows){ let e = g.get(r[dim]); if(!e){ e = {}; g.set(r[dim], e); } e[r.m] = (e[r.m] || 0) + r.c; }
+  const arr = [...g].map(([k, e]) => [k, e, months.reduce((s, m) => s + (e[m] || 0), 0)]).sort((a, b) => b[2] - a[2]);
+  const n = months.length;
+  $('#bdOut').innerHTML = bars(arr.map(x => [x[0], x[2]]), tot, 15) + '<div class="tw" style="margin-block-start:12px">' + table(['Item', ...months.map(esc), 'Total', 'Share', 'Last MoM'], arr.map(([k, e, t]) => { const a = e[months[n-2]] || 0, b = e[months[n-1]] || 0; return [esc(k), ...months.map(m => money(e[m] || 0)), '<strong>' + money(t) + '</strong>', pct(t, tot), n > 1 && a ? '<span class="' + (b > a ? 'pos' : 'neg') + '">' + nf1.format(100 * (b - a) / a) + '%</span>' : '–']; }), months.map((_, i) => i + 1).concat([n+1, n+2, n+3])) + '</div>';
+}
+$('#bdDim').addEventListener('change', renderBreakdown);
+
+function resFlags(r, A, np, og){
+  const span = r.ma - r.mi + 1, isVM = r.cat === 'Virtual Machines', up = r.nd ? r.nd / span : 0, hpd = (isVM && r.nd) ? r.vh / (r.nd * 24) : 0;
+  const f = [];
+  if(r.ma < S.maxDay - 7) f.push('stopped');
+  else {
+    if(r.od > 0 && span >= 28 && up >= A.uptime/100 && (!isVM || hpd >= 0.75) && isCommit(r.cat)) f.push('steady');
+    if(isVM && r.win && r.od > 0) f.push('win');
+    if(isVM && np && np.test(r.sub + ' ' + r.rg) && hpd >= 0.9) f.push('np');
+    if(isVM && og && og.test(r.sc)) f.push('og');
+  }
+  return {f, up, hpd};
+}
+const FLAG_LBL = {steady:'Steady on-demand', win:'Windows licence', np:'Non-prod 24×7', og:'Previous gen', stopped:'Not seen last 7d'};
+let RS_LIST = [];
+function renderResources(){
+  if(S.detailMode === 'summary'){ $('#rsCount').textContent = 'Not retained in Trends mode'; $('#rsOut').textContent = 'Reload in Full resource and tag detail mode to inspect individual resources. Cost charts remain complete.'; return; }
+  const A = assumptions(), np = safeRe(A.np), og = safeRe(A.og); const q = $('#rsQ').value.trim().toLowerCase(), flag = $('#rsFlag').value;
+  RS_LIST = [];
+  for(const r of S.resArr){
+    if(F.sub && r.sub !== F.sub) continue; if(F.cat && r.cat !== F.cat) continue;
+    if(q && (r.id + ' ' + r.sz + ' ' + r.sc).toLowerCase().indexOf(q) < 0) continue;
+    const x = resFlags(r, A, np, og); if(flag && !x.f.includes(flag)) continue;
+    RS_LIST.push({r, ...x});
+  }
+  RS_LIST.sort((a, b) => b.r.c - a.r.c);
+  $('#rsCount').textContent = nf0.format(RS_LIST.length) + ' resources' + (RS_LIST.length > 400 ? ' (top 400 by cost shown)' : '');
+  $('#rsOut').innerHTML = table(['Resource','Type','Subscription','Resource group','Region','Size / meter','Cost','On-demand cost','Days seen %','VM hrs/day','Flags'],
+    RS_LIST.slice(0, 400).map(({r, f, up, hpd}) => ['<span title="' + esc(r.id) + '">' + esc(resName(r.id)) + '</span>', esc(r.cat), esc(r.sub), esc(r.rg), esc(r.loc), esc(r.sz || r.sc), money(r.c), money(r.od), r.nd ? nf0.format(100 * up) + '%' : '–', hpd ? nf1.format(hpd * 24) : '–', f.map(x => '<span class="tag' + (x === 'stopped' ? ' w' : '') + '">' + FLAG_LBL[x] + '</span>').join('')]), [6,7,8,9]);
+}
+$('#rsQ').addEventListener('input', renderResources);
+$('#rsFlag').addEventListener('change', renderResources);
+
+function renderCommit(){
+  const usage = cubeF().filter(r => r.ct === 'Usage' && isCommit(r.cat));
+  const g = new Map(); for(const r of usage){ let e = g.get(r.cat); if(!e){ e = {}; g.set(r.cat, e); } e[r.pm] = (e[r.pm] || 0) + r.c; }
+  const arr = [...g].map(([c, e]) => { const t = Object.values(e).reduce((s, v) => s + v, 0); return [c, e.OnDemand || 0, e.Reservation || 0, e.SavingsPlan || 0, e.Spot || 0, t]; }).sort((a, b) => b[5] - a[5]);
+  $('#cov').innerHTML = arr.length ? table(['Service','On-demand','Reservation','Savings plan','Spot','Total','Committed coverage'], arr.map(a => [esc(a[0]), money(a[1]), money(a[2]), money(a[3]), money(a[4]), money(a[5]), (a[2] + a[3]) / (a[5] || 1) < 0.5 ? '<span class="pos">' + pct(a[2] + a[3], a[5]) + '</span>' : pct(a[2] + a[3], a[5])]), [1,2,3,4,5,6]) + '<p class="small muted">In an actual-cost export, usage covered by a reservation shows as $0 (cost sits on the Purchase line) — coverage is then best read from the amortised export or Cost Management.</p>' : '<p class="muted">No commitment-eligible usage in the current filter.</p>';
+  const rv = [...S.resv.values()].sort((a, b) => (b.used + b.unused + b.purchase) - (a.used + a.unused + a.purchase));
+  $('#resvT').innerHTML = rv.length ? '<div class="tw">' + table(['Name','Type','Used (amortised)','PAYG value of usage','Unused','Utilisation','Purchases'], rv.map(v => [esc(v.nm), esc(v.pm), money(v.used), money(v.usedPayg), v.unused ? '<span class="pos">' + money(v.unused) + '</span>' : money(0), (v.used + v.unused) ? (v.used / (v.used + v.unused) < 0.9 ? '<span class="pos">' + pct(v.used, v.used + v.unused) + '</span>' : pct(v.used, v.used + v.unused)) : '–', money(v.purchase)]), [2,3,4,5,6]) + '</div>' : '<p class="muted">No reservations or savings plans found in the data — a strong signal that commitments have not been used yet.</p>';
+}
+
+function renderGov(){
+  const rows = cubeF(); const tot = rows.reduce((s, r) => s + r.c, 0); const all = S.cubeArr.reduce((s, r) => s + r.c, 0);
+  const keys = [...S.tagKey].sort((a, b) => b[1][0] - a[1][0]);
+  $('#tagKeys').innerHTML = keys.length ? '<p class="small muted">All subscriptions (filters not applied). Look for a consistent cost-allocation tag (e.g. cost centre, application, environment, owner).</p><div class="tw">' + table(['Tag key','Cost carrying tag','Coverage'], keys.slice(0, 60).map(([k, v]) => [esc(k), money(v[0]), pct(v[0], all)]), [1,2]) + '</div>' : '<p class="muted">No tags found in the data.</p>';
+  $('#tagSel').innerHTML = keys.slice(0, 60).map(([k]) => '<option>' + esc(k) + '</option>').join('');
+  renderTagVals();
+  const ut = [...sumBy(rows.filter(r => r.tag === 'Untagged'), r => r.sub, r => r.c)].sort((a, b) => b[1] - a[1]);
+  $('#untag').innerHTML = bars(ut, ut.reduce((s, x) => s + x[1], 0), 15);
+  const mk = new Map(); for(const [k, v] of S.pubs){ const p = k.split(SEP); if(F.cat && p[3] !== F.cat) continue; const kk = p[0] + SEP + p[1] + SEP + p[2]; mk.set(kk, (mk.get(kk) || 0) + v[0]); }
+  const ml = [...mk].sort((a, b) => b[1] - a[1]);
+  $('#mkt').innerHTML = ml.length ? '<div class="tw">' + table(['Publisher type','Publisher','Azure credit eligible','Cost'], ml.slice(0, 100).map(([k, c]) => { const p = k.split(SEP); return [esc(p[0]), esc(p[1]), p[2] === 'No' ? '<span class="pos">No</span>' : esc(p[2]), money(c)]; }), [3]) + '</div>' : '<p class="muted">All spend is first-party Azure and credit eligible.</p>';
+}
+function renderTagVals(){
+  if(S.detailMode === 'summary'){ $('#tagVals').textContent = 'Tag-value detail is not retained in Trends mode. Tag-key coverage is available.'; return; }
+  const key = $('#tagSel').value; if(!key){ $('#tagVals').innerHTML = ''; return; }
+  const list = [...S.tagKV].filter(([k]) => k.split(SEP)[0] === key).map(([k, v]) => [k.split(SEP)[1], v[0]]).sort((a, b) => b[1] - a[1]);
+  $('#tagVals').innerHTML = bars(list, list.reduce((s, x) => s + x[1], 0), 20);
+}
+$('#tagSel').addEventListener('change', renderTagVals);
+
+/* ---------- export ---------- */
+function csvCell(v){ v = v == null ? '' : String(v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function download(name, text, type){ const b = new Blob([text], {type:type || 'text/csv'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 5000); }
+function toCsv(h, rows){ return [h.map(csvCell).join(',')].concat(rows.map(r => r.map(csvCell).join(','))).join('\r\n'); }
+const stamp = () => dayToStr(S.minDay) + '_to_' + dayToStr(S.maxDay);
+$('#exJson').addEventListener('click', () => download('azure_analysis_' + stamp() + '.json', serialize(), 'application/json'));
+$('#exCube').addEventListener('click', () => download('azure_monthly_summary_' + stamp() + '.csv', toCsv(['month','subscription','meterCategory','pricingModel','chargeType','location','tagged','publisherType','azureCreditEligible','cost','paygCost'], S.cubeArr.map(r => [r.m, r.sub, r.cat, r.pm, r.ct, r.loc, r.tag, r.pub, r.ce, r.c.toFixed(2), r.p.toFixed(2)]))));
+$('#exRes').addEventListener('click', () => { const A = assumptions(), np = safeRe(A.np), og = safeRe(A.og); download('azure_resources_' + stamp() + '.csv', toCsv(['resourceId','name','meterCategory','meterSubCategory','subscription','resourceGroup','location','vmSize','cost','paygCost','onDemandCost','firstSeen','lastSeen','daysSeen','vmHours','windowsLicence','tagged','flags'], S.resArr.map(r => [r.id, resName(r.id), r.cat, r.sc, r.sub, r.rg, r.loc, r.sz, r.c.toFixed(2), r.p.toFixed(2), r.od.toFixed(2), dayToStr(r.mi), dayToStr(r.ma), r.nd, r.vh.toFixed(1), r.win ? 'Y' : '', r.tg ? 'Y' : '', resFlags(r, A, np, og).f.join('|')]))); });
+$('#exMeters').addEventListener('click', () => download('azure_meters_' + stamp() + '.csv', toCsv(['subscription','meterCategory','meterSubCategory','meterName','unit','pricingModel','quantity','cost'], S.meterArr.map(m => [m.sub, m.cat, m.sc, m.mn, m.unit, m.pm, m.q.toFixed(4), m.c.toFixed(2)]))));
+$('#exSave').addEventListener('click', () => { const rows = []; for(const L of computeSavings(assumptions(), {sub:'',cat:''})) for(const it of L.items) rows.push([L.name, it.label, it.detail, it.basis.toFixed(2), it.saving.toFixed(2), L.how]); download('azure_savings_' + stamp() + '.csv', toCsv(['opportunity','item','detail','annualCostInScope','indicativeAnnualSaving','recommendedAction'], rows)); });
+$('#exDaily').addEventListener('click', () => download('azure_daily_' + stamp() + '.csv', toCsv(['date','subscription','meterCategory','cost'], S.dailyArr.map(r => [dayToStr(r.d), r.sub, r.cat, r.c.toFixed(2)]))));
+</script>
+</body>
+</html>
