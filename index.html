@@ -13,6 +13,7 @@ body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;ba
 header{background:var(--panel);border-block-end:1px solid var(--border);padding:14px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:16px;justify-content:space-between}
 header h1{font-size:19px;margin:0}
 header .sub{color:var(--muted);font-size:12.5px}
+.disclaimer{background:#fff0f0;color:#a00000;border:4px solid #a00000;padding:18px 24px;font-size:clamp(20px,3vw,32px);font-weight:800;line-height:1.25;text-align:center}
 main{padding:18px 24px;max-width:1500px;margin:0 auto}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-block-end:16px}
 .panel h2{font-size:15.5px;margin:0 0 10px}
@@ -80,7 +81,7 @@ details summary{cursor:pointer;font-weight:600}
 <header>
   <div>
     <h1>Azure Consumption &amp; Savings Analyser</h1>
-    <div class="sub">Runs entirely in your browser — no data leaves this machine. Accepts multiple Microsoft Customer Agreement / EA cost-detail CSV exports.</div>
+    <div class="sub">Billing files are processed in your browser. GitHub receives normal page requests; saved exports may contain sensitive data. Accepts Microsoft Customer Agreement / EA cost-detail CSV exports.</div>
   </div>
   <div class="row noprint hidden" id="filters">
     <label class="small">Subscription <select id="fSub"></select></label>
@@ -90,6 +91,7 @@ details summary{cursor:pointer;font-weight:600}
     <button class="sec" id="btnReset">Load different files</button>
   </div>
 </header>
+<div class="disclaimer" role="note">ILLUSTRATIVE PURPOSES ONLY — DO NOT TREAT RESULTS AS ACCURATE WITHOUT CONSULTING A MICROSOFT ACCOUNT TEAM SPECIALIST.</div>
 <main>
 
 <section class="panel" id="loader">
@@ -148,25 +150,23 @@ details summary{cursor:pointer;font-weight:600}
   <section class="view" id="v-sv">
     <div class="panel">
       <h2>Savings opportunities (indicative, annualised)</h2>
-      <p class="small muted">Each lever is applied per resource in sequence (schedule → modernise → Hybrid Benefit → commitment), so resource-level figures add up without double counting. Annualised from each resource's on-demand run-rate during the period it was active. Validate with Azure Advisor and Cost Management before sharing with the customer. Adjust the assumptions to match the customer's agreement.</p>
+      <p class="small muted">Saving percentages default to zero and are hypothetical user-supplied assumptions, not Microsoft discounts or verified customer rates. Resource scenarios are applied in sequence; opportunities can overlap across resources and meters, so do not add them together. Estimates are annualised and are not guaranteed. Verify pricing, workload suitability and licence entitlements with Azure Advisor, Cost Management and a Microsoft Account Team specialist.</p>
       <details open><summary>Assumptions</summary>
         <div class="assump" id="assump">
-          <label>Commitment discount (RI / savings plan) % <input type="number" id="aCommit" value="30" min="0" max="80"></label>
+          <label>Hypothetical commitment discount (RI / savings plan) % <input type="number" id="aCommit" value="0" min="0" max="80"></label>
           <label>Min. uptime for steady workload % <input type="number" id="aUptime" value="90" min="0" max="100"></label>
-          <label>Azure Hybrid Benefit (Windows) % <input type="number" id="aAhb" value="35" min="0" max="60"></label>
-          <label>Non-prod scheduling saving % <input type="number" id="aSched" value="60" min="0" max="90"></label>
-          <label>VM modernisation saving % <input type="number" id="aOld" value="15" min="0" max="60"></label>
-          <label>Unused commitment recoverable % <input type="number" id="aUnused" value="50" min="0" max="100"></label>
-          <label>SQL Server licence (AHB) % <input type="number" id="aSql" value="100" min="0" max="100"></label>
-          <label>Snapshot clean-up % <input type="number" id="aSnap" value="50" min="0" max="100"></label>
-          <label>Blob tiering (Hot data) % <input type="number" id="aHot" value="30" min="0" max="90"></label>
-          <label>Premium disk right-sizing % <input type="number" id="aDisk" value="15" min="0" max="60"></label>
-          <label>Log Analytics commitment tier % <input type="number" id="aLogs" value="15" min="0" max="50"></label>
+          <label>Hypothetical Azure Hybrid Benefit (Windows) % <input type="number" id="aAhb" value="0" min="0" max="60"></label>
+          <label>Hypothetical non-prod scheduling saving % <input type="number" id="aSched" value="0" min="0" max="90"></label>
+          <label>Hypothetical VM modernisation saving % <input type="number" id="aOld" value="0" min="0" max="60"></label>
+          <label>Hypothetical SQL Server licence (AHB) % <input type="number" id="aSql" value="0" min="0" max="100"></label>
+          <label>Hypothetical snapshot clean-up % <input type="number" id="aSnap" value="0" min="0" max="100"></label>
+          <label>Hypothetical blob tiering (Hot data) % <input type="number" id="aHot" value="0" min="0" max="90"></label>
+          <label>Hypothetical premium disk right-sizing % <input type="number" id="aDisk" value="0" min="0" max="60"></label>
+          <label>Hypothetical Log Analytics commitment tier % <input type="number" id="aLogs" value="0" min="0" max="50"></label>
           <label>Non-prod pattern (subscription or resource group) <input type="text" id="aNp" value="dev|test|tst|uat|qa|sit|nonprod|non-prod|sandbox|sbx|poc|lab|demo|staging|stg|training"></label>
           <label>Previous-gen VM series pattern <input type="text" id="aOg" value="(^|[\s/])(A|Av2|Basic|D|DS|Dv2|DSv2|Dv3|DSv3|Ev3|ESv3|F|FS|G|GS|NV|NC|H|L)\s?(Series|/)"></label>
         </div>
       </details>
-      <div class="kpis" id="svKpis" style="margin-block-start:12px"></div>
       <div id="svTable"></div>
     </div>
     <div class="panel"><h2>Lever detail</h2><div id="svDetail"></div></div>
@@ -184,7 +184,7 @@ details summary{cursor:pointer;font-weight:600}
   <section class="view" id="v-bd">
     <div class="panel">
       <div class="row"><h2 style="margin:0">Cost by</h2>
-        <select id="bdDim"><option value="sub">Subscription</option><option value="cat">Meter category</option><option value="loc">Region</option><option value="pm">Pricing model</option><option value="ct">Charge type</option><option value="pub">Publisher type</option><option value="ce">Azure credit / MACC eligible</option><option value="tag">Tagged</option><option value="rg">Resource group</option><option value="meter">Meter</option></select>
+        <select id="bdDim"><option value="sub">Subscription</option><option value="cat">Meter category</option><option value="loc">Region</option><option value="pm">Pricing model</option><option value="ct">Charge type</option><option value="pub">Publisher type</option><option value="ce">Azure credit eligible</option><option value="tag">Tagged</option><option value="rg">Resource group</option><option value="meter">Meter</option></select>
       </div>
       <div id="bdOut" style="margin-block-start:10px"></div>
     </div>
@@ -211,7 +211,7 @@ details summary{cursor:pointer;font-weight:600}
       <div class="panel"><h2>Tag coverage (share of cost carrying each tag key)</h2><div id="tagKeys"></div></div>
       <div class="panel"><h2>Tag values</h2><div class="row small"><label>Tag key <select id="tagSel"></select></label></div><div id="tagVals"></div></div>
       <div class="panel"><h2>Untagged cost by subscription</h2><div id="untag"></div></div>
-      <div class="panel"><h2>Marketplace &amp; Azure credit (MACC) eligibility</h2><div id="mkt"></div></div>
+      <div class="panel"><h2>Marketplace &amp; Azure credit eligibility</h2><p class="small muted">Azure credit eligibility is not MACC eligibility. Verify MACC eligibility against the customer's agreement and offer terms.</p><div id="mkt"></div></div>
     </div>
   </section>
 
@@ -239,6 +239,7 @@ details summary{cursor:pointer;font-weight:600}
 'use strict';
 /* ===== Engine: streaming CSV parse + aggregation (no DOM) ===== */
 const SEP = '\u0001';
+const DISCLAIMER = 'Illustrative purposes only. Do not treat results as accurate without consulting a Microsoft Account Team specialist. Estimates may overlap and must not be summed.';
 const BASE_DAY = 17532; // 2018-01-01
 const BM_BYTES = 640;   // day bitmap ~14 years
 const ALIASES = {
@@ -472,7 +473,7 @@ function buildDerived(){
 }
 
 function serialize(){
-  return JSON.stringify({version:1, detailMode:S.detailMode, demo:!!S.demo, rows:S.rows, bad:S.bad, minDay:S.minDay, maxDay:S.maxDay, currency:S.currency, ccyMode:S.ccyMode,
+  return JSON.stringify({version:1, disclaimer:DISCLAIMER, detailMode:S.detailMode, demo:!!S.demo, rows:S.rows, bad:S.bad, minDay:S.minDay, maxDay:S.maxDay, currency:S.currency, ccyMode:S.ccyMode,
     warnings:S.warnings, files:S.files.map(f => ({name:f.name, size:f.size, rows:f.rows, months:[...f.months]})),
     chargeTypes:[...S.chargeTypes], cube:[...S.cube], daily:[...S.daily], meters:[...S.meters], rgs:[...S.rgs], pubs:[...S.pubs],
     tagKV:[...S.tagKV], tagKey:[...S.tagKey], resv:[...S.resv],
@@ -497,14 +498,14 @@ const LEVERS = {
   oldgen:{name:'Modernise previous-generation VMs', how:'VMs on older series (A/D/E/F/G v2–v3 etc.). Move to current v5/v6 (or AMD/Arm) sizes for better price-performance; right-size using Azure Advisor CPU/memory data.'},
   ahb:{name:'Azure Hybrid Benefit – Windows Server', how:'VMs paying the Windows licence in the meter. Apply AHB where the customer has Windows Server licences with Software Assurance or subscriptions (check the customer EA/CSP licence position).'},
   commit:{name:'Reservations / Savings plan for steady workloads', how:'On-demand resources running most days (uptime ≥ threshold, still active). Cover with Reservations (stable size/region) or a Compute Savings Plan (flexible). Cross-check Advisor reservation recommendations.'},
-  unused:{name:'Unused reservation / savings plan commitment', how:'Commitment hours paid but not used. Change scope to shared / management group, exchange or right-size the reservation, or align workloads to it.'},
+  unused:{name:'Unused reservation / savings plan commitment', how:'Review unused commitment and workload alignment. No recoverable savings are estimated; changes, exchanges and refunds depend on the commitment type and applicable terms.'},
   sqlahb:{name:'Azure Hybrid Benefit – SQL Server', how:'SQL Server licences billed through Azure (VM licence meters). Apply AHB for SQL Server where licences with SA exist; consider SQL Managed Instance / vCore with AHB.'},
   snap:{name:'Snapshot clean-up', how:'Managed disk snapshots. Review retention, delete orphaned snapshots, use incremental snapshots on Standard storage.'},
   hot:{name:'Blob storage tiering', how:'Data stored in the Hot tier. Apply lifecycle management policies to move infrequently accessed data to Cool / Cold / Archive.'},
   disk:{name:'Premium disk right-sizing', how:'Premium SSD managed disks. Downsize over-provisioned disks, move low-IOPS disks to Standard SSD or Premium SSD v2, delete unattached disks (check Advisor).'},
   logs:{name:'Log Analytics optimisation', how:'Pay-as-you-go log ingestion. Move to a commitment tier (from 100 GB/day), use Basic/Auxiliary logs for verbose tables, filter with data collection rules.'},
   egress:{name:'Data transfer / bandwidth review', how:'Internet and inter-region egress. Review architecture (co-locate services, Front Door/CDN caching, Private Link). Savings not estimated.'},
-  market:{name:'Marketplace / non-MACC-eligible spend', how:'Spend not flagged as Azure credit eligible or bought via Marketplace. Check whether it decrements the customer\'s MACC; prefer Azure benefit-eligible offers. Commercial lever – savings not estimated.'}
+  market:{name:'Marketplace / Azure credit eligibility review', how:'Review Marketplace and Azure credit eligibility. Azure credit eligibility does not establish MACC eligibility; verify the offer and customer agreement. Savings are not estimated.'}
 };
 function computeSavings(A, F){
   const out = {}; for(const k in LEVERS) out[k] = {id:k, ...LEVERS[k], basis:0, saving:0, items:[]};
@@ -524,7 +525,7 @@ function computeSavings(A, F){
     const base = rem;
     const label = resName(r.id), detail = r.sub + ' / ' + r.rg + (r.sz ? ' · ' + r.sz : (r.sc ? ' · ' + r.sc : ''));
     const isNP = !!(np && np.test(r.sub + ' ' + r.rg));
-    const sched = isVM && isNP && hpd >= 0.9;
+    const sched = isVM && isNP && hpd >= 0.9 && A.sched > 0;
     if(sched){ const s = rem * A.sched/100; push('sched', label, detail, base, s); rem -= s; }
     if(isVM && og && og.test(r.sc)){ const s = rem * A.oldgen/100; push('oldgen', label, detail, base, s); rem -= s; }
     if(isVM && r.win){ const s = rem * A.ahb/100; push('ahb', label, detail, base, s); rem -= s; }
@@ -543,7 +544,7 @@ function computeSavings(A, F){
     if(m.cat === 'Bandwidth' && !/free/i.test(m.mn)) push('egress', label, detail, a, 0);
   }
   if(!F.sub && !F.cat) for(const v of S.resv.values()){
-    if(v.unused > 0){ const a = v.unused * ann; push('unused', v.nm, v.pm === 'SavingsPlan' ? 'Savings plan' : 'Reservation', a, a * A.unused/100); }
+    if(v.unused > 0){ const a = v.unused * ann; push('unused', v.nm, v.pm === 'SavingsPlan' ? 'Savings plan' : 'Reservation', a, 0); }
   }
   const mk = new Map();
   for(const [k, v] of S.pubs){ const p = k.split(SEP); if(F.cat && p[3] !== F.cat) continue; const kk = p[0] + SEP + p[1] + SEP + p[2]; mk.set(kk, (mk.get(kk) || 0) + v[0]); }
@@ -827,7 +828,7 @@ function lastFullMonth(months){
     return S.minDay <= Date.UTC(year,month-1,1)/864e5 && S.maxDay >= Date.UTC(year,month,0)/864e5;
   });
 }
-function assumptions(){ const g = id => +$(id).value || 0; return {commit:g('#aCommit'), uptime:g('#aUptime'), ahb:g('#aAhb'), sched:g('#aSched'), oldgen:g('#aOld'), unused:g('#aUnused'), sql:g('#aSql'), snap:g('#aSnap'), hot:g('#aHot'), disk:g('#aDisk'), logs:g('#aLogs'), np:$('#aNp').value, og:$('#aOg').value}; }
+function assumptions(){ const g = id => +$(id).value || 0; return {commit:g('#aCommit'), uptime:g('#aUptime'), ahb:g('#aAhb'), sched:g('#aSched'), oldgen:g('#aOld'), sql:g('#aSql'), snap:g('#aSnap'), hot:g('#aHot'), disk:g('#aDisk'), logs:g('#aLogs'), np:$('#aNp').value, og:$('#aOg').value}; }
 document.querySelectorAll('#assump input').forEach(i => i.addEventListener('change', renderActive));
 
 /* ---------- views ---------- */
@@ -846,7 +847,7 @@ function renderAll(){
 
 function renderOverview(){
   SAV = computeSavings(assumptions(), F);
-  const rows = cubeF(); const tot = rows.reduce((s, r) => s + r.c, 0), payg = rows.reduce((s, r) => s + r.p, 0);
+  const rows = cubeF(); const tot = rows.reduce((s, r) => s + r.c, 0);
   const months = monthsOf(rows); const lfm = lastFullMonth(months);
   const lfmCost = rows.filter(r => r.m === lfm).reduce((s, r) => s + r.c, 0);
   const usage = rows.filter(r => r.ct === 'Usage'); const usageTot = usage.reduce((s, r) => s + r.c, 0);
@@ -854,16 +855,13 @@ function renderOverview(){
   const unused = rows.filter(r => r.ct.indexOf('Unused') === 0).reduce((s, r) => s + r.c, 0);
   const untag = rows.filter(r => r.tag === 'Untagged').reduce((s, r) => s + r.c, 0);
   const nonCe = rows.filter(r => r.ce === 'No').reduce((s, r) => s + r.c, 0);
-  const saveTot = SAV.reduce((s, L) => s + L.saving, 0);
   const runRate = lfmCost * 12;
   $('#kpis').innerHTML = kpi('Total cost', money(tot), dayToStr(S.minDay) + ' → ' + dayToStr(S.maxDay)) +
     kpi('Last full month' + (lfm ? ' (' + lfm + ')' : ''), money(lfmCost), 'Annualised run-rate ' + money(runRate)) +
-    kpi('Discount vs PAYG already realised', money(payg - tot), pct(payg - tot, payg) + ' below pay-as-you-go') +
     kpi('On-demand share of usage', pct(od, usageTot), money(od) + ' at on-demand rates') +
     kpi('Unused commitment', money(unused), unused ? 'Paid but unused reservation / savings plan' : 'None found (or actual-cost view)') +
     kpi('Untagged spend', pct(untag, tot), money(untag)) +
-    kpi('Not Azure-credit (MACC) eligible', money(nonCe), pct(nonCe, tot) + ' of spend') +
-    kpi('Indicative annual savings identified', money(saveTot), runRate ? pct(saveTot, runRate) + ' of annual run-rate' : '', true);
+    kpi('Not Azure-credit eligible', money(nonCe), pct(nonCe, tot) + ' of spend; MACC eligibility not determined');
   const ranked = [...sumBy(rows,r => r.cat,r => r.c)].sort((a,b) => Math.abs(b[1])-Math.abs(a[1]));
   const top = ranked.slice(0,9).map(x => x[0]);
   const seriesNames = top.map(name => ({name,other:false}));
@@ -880,10 +878,6 @@ function renderOverview(){
 
 function renderSavings(){
   SAV = computeSavings(assumptions(), F);
-  const tot = SAV.reduce((s, L) => s + L.saving, 0);
-  const rows = cubeF(); const months = monthsOf(rows); const lfm = lastFullMonth(months); const rr = rows.filter(r => r.m === lfm).reduce((s, r) => s + r.c, 0) * 12;
-  $('#svKpis').innerHTML = kpi('Indicative annual savings', money(tot), rr ? pct(tot, rr) + ' of annual run-rate ' + money(rr) : '', true) +
-    SAV.filter(L => L.saving > 0).slice(0, 3).map(L => kpi(L.name, money(L.saving), nf0.format(L.count) + ' items')).join('');
   $('#svTable').innerHTML = table(['Opportunity','What to do','In-scope annual cost','Indicative annual saving','Items'], SAV.map(L => ['<strong>' + esc(L.name) + '</strong>', '<span class="small">' + esc(L.how) + '</span>', money(L.basis), L.saving ? '<strong>' + money(L.saving) + '</strong>' : '<span class="muted">review</span>', nf0.format(L.count)]), [2,3,4]);
   $('#svDetail').innerHTML = SAV.map(L => '<details><summary>' + esc(L.name) + ' — ' + (L.saving ? money(L.saving) + ' / yr' : money(L.basis) + ' / yr in scope') + ' (' + L.count + ' items)</summary>' +
     '<div class="tw">' + table(['Item','Subscription / RG / detail','Annual cost in scope','Indicative saving'], L.items.slice(0, 100).map(it => [esc(it.label), '<span class="small">' + esc(it.detail) + '</span>', money(it.basis), it.saving ? money(it.saving) : '–']), [2,3]) + '</div>' +
@@ -1000,7 +994,7 @@ function renderGov(){
   $('#untag').innerHTML = bars(ut, ut.reduce((s, x) => s + x[1], 0), 15);
   const mk = new Map(); for(const [k, v] of S.pubs){ const p = k.split(SEP); if(F.cat && p[3] !== F.cat) continue; const kk = p[0] + SEP + p[1] + SEP + p[2]; mk.set(kk, (mk.get(kk) || 0) + v[0]); }
   const ml = [...mk].sort((a, b) => b[1] - a[1]);
-  $('#mkt').innerHTML = ml.length ? '<div class="tw">' + table(['Publisher type','Publisher','Azure credit eligible','Cost'], ml.slice(0, 100).map(([k, c]) => { const p = k.split(SEP); return [esc(p[0]), esc(p[1]), p[2] === 'No' ? '<span class="pos">No</span>' : esc(p[2]), money(c)]; }), [3]) + '</div>' : '<p class="muted">All spend is first-party Azure and credit eligible.</p>';
+  $('#mkt').innerHTML = ml.length ? '<div class="tw">' + table(['Publisher type','Publisher','Azure credit eligible','Cost'], ml.slice(0, 100).map(([k, c]) => { const p = k.split(SEP); return [esc(p[0]), esc(p[1]), p[2] === 'No' ? '<span class="pos">No</span>' : esc(p[2]), money(c)]; }), [3]) + '</div>' : '<p class="muted">No non-Azure publisher or explicitly credit-ineligible charges found. Credit eligibility may be unknown.</p>';
 }
 function renderTagVals(){
   if(S.detailMode === 'summary'){ $('#tagVals').textContent = 'Tag-value detail is not retained in Trends mode. Tag-key coverage is available.'; return; }
@@ -1011,9 +1005,13 @@ function renderTagVals(){
 $('#tagSel').addEventListener('change', renderTagVals);
 
 /* ---------- export ---------- */
-function csvCell(v){ v = v == null ? '' : String(v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function csvCell(v){
+  v = v == null ? '' : String(v);
+  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(v) && (/^[\t\r\n]/.test(v) || /^\s*[=+\-@]/.test(v))) v = "'" + v;
+  return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+}
 function download(name, text, type){ const b = new Blob([text], {type:type || 'text/csv'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 5000); }
-function toCsv(h, rows){ return [h.map(csvCell).join(',')].concat(rows.map(r => r.map(csvCell).join(','))).join('\r\n'); }
+function toCsv(h, rows){ return [h.concat(DISCLAIMER).map(csvCell).join(',')].concat(rows.map(r => r.concat(DISCLAIMER).map(csvCell).join(','))).join('\r\n'); }
 const stamp = () => dayToStr(S.minDay) + '_to_' + dayToStr(S.maxDay);
 $('#exJson').addEventListener('click', () => download('azure_analysis_' + stamp() + '.json', serialize(), 'application/json'));
 $('#exCube').addEventListener('click', () => download('azure_monthly_summary_' + stamp() + '.csv', toCsv(['month','subscription','meterCategory','pricingModel','chargeType','location','tagged','publisherType','azureCreditEligible','cost','paygCost'], S.cubeArr.map(r => [r.m, r.sub, r.cat, r.pm, r.ct, r.loc, r.tag, r.pub, r.ce, r.c.toFixed(2), r.p.toFixed(2)]))));
